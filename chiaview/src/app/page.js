@@ -7,10 +7,13 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/effect-fade";
+import Navbar from "./Navbar/page";
+import Mission from "./Mission/page";
 
 export default function Hero() {
   return (
     <section className="relative w-full h-screen">
+      <Navbar/>
       <Swiper
         modules={[Autoplay, Pagination, Navigation, EffectFade]}
         spaceBetween={0}
@@ -115,6 +118,7 @@ export default function Hero() {
           }
         }
       `}</style>
+         <Mission/>
     </section>
   );
 }
