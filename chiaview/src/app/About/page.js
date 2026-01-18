@@ -1,232 +1,184 @@
 "use client";
-import Navbar from "../Navbar/page";
+
 import { motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import Navbar from "../Navbar/page";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-      delayChildren: 0.1
-    }
-  }
-};
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 50 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
-};
+const teamValues = [
+  {
+    title: "Faithfulness to Scripture",
+    description:
+      "We hold the Bible as our only rule of faith and practice, proclaiming the everlasting gospel as revealed in the Three Angels' Messages.",
+    icon: "📖",
+  },
+  {
+    title: "Compassionate Service",
+    description:
+      "Following Christ's example, we serve the vulnerable through practical help, always pointing people to the hope found in Jesus.",
+    icon: "🤝",
+  },
+  {
+    title: "Community Transformation",
+    description:
+      "We believe lasting change happens when hearts are transformed by the gospel, leading to stronger families, empowered youth, and vibrant communities.",
+    icon: "🌱",
+  },
+  {
+    title: "Unity in Christ",
+    description:
+      "As a local expression of the body of Christ, we welcome all who seek truth and fellowship, working together until Jesus returns.",
+    icon: "🙏",
+  },
+];
 
-export default function AboutUsPage() {
+
+export default function About() {
   return (
-    <section className="w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen">
-      <Navbar />
-
-      {/* Enhanced Hero Banner */}
-      <div className="relative w-full h-screen bg-cover bg-center flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-gradient-to-r from-blue-900/40 via-purple-900/30 to-indigo-900/50"
-          style={{ backgroundImage: "url('/2.JPG')" }}
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(120,119,198,0.3),transparent_50%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.2),transparent_50%)]"></div>
+    
+    <section className="bg-gradient-to-b from-blue-50 to-white">
+      {/* Hero Section */}
+      <div
+        className="relative flex min-h-[60vh] items-center justify-center bg-cover bg-center"
+        style={{ backgroundImage: "url('/about-hero.jpg')" }} // Replace with your image (e.g., church gathering, community, or landscape)
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
         <motion.div
-          className="text-center px-6 relative z-10 max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+          transition={{ duration: 1.2 }}
+          className="relative z-10 max-w-5xl px-6 text-center text-white"
         >
-          <motion.div
-            animate={{ 
-              scale: [1, 1.05, 1],
-              rotate: [-2, 2, 0]
-            }}
-            transition={{ 
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          >
-            <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent drop-shadow-2xl leading-tight">
-              About Us
-            </h1>
-          </motion.div>
-          <motion.p 
-            className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white/90 mt-6 max-w-2xl mx-auto leading-relaxed backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
-          >
-            Discover the heart of Chia View Church Mission – where faith meets community.
-          </motion.p>
+          <h1 className="mb-6 text-5xl font-extrabold sm:text-6xl md:text-7xl tracking-tight">
+            About Chia View Church Mission
+          </h1>
+          <p className="mx-auto max-w-4xl text-xl sm:text-2xl md:text-3xl font-light leading-relaxed">
+            A community of believers in Central Malawi, called to proclaim hope, serve with love, and prepare hearts for Christ's soon return.
+          </p>
         </motion.div>
       </div>
 
-      {/* Mission Statement */}
-      <motion.section
-        className="max-w-5xl mx-auto text-center py-24 px-6 relative"
-        initial="hidden"
-        whileInView="visible"
+      {/* Who We Are */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        variants={containerVariants}
+        transition={{ duration: 1 }}
+        className="mx-auto max-w-5xl px-6 py-20 text-center"
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-transparent -z-10 blur-xl"></div>
-        <motion.div variants={itemVariants}>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black bg-gradient-to-r from-blue-900 to-purple-900 bg-clip-text text-transparent mb-8">
-            Our Mission
-          </h2>
-        </motion.div>
-        <motion.p 
-          className="text-xl sm:text-2xl text-gray-700 leading-relaxed max-w-3xl mx-auto"
-          variants={itemVariants}
-        >
-          At Chia View Church Mission, we are dedicated to spreading hope, love, and spiritual growth.
-          We serve our community through worship, education, outreach programs, and holistic support.
-        </motion.p>
-      </motion.section>
+        <h2 className="mb-8 text-4xl md:text-5xl font-bold text-blue-900">
+          Who We Are
+        </h2>
+        <div className="prose prose-lg mx-auto max-w-4xl text-gray-800 leading-relaxed">
+          <p>
+            Chia View Church Mission is a vibrant Seventh-day Adventist community based in the Central Region of Malawi, with mission centers in{" "}
+            <strong>Dowa</strong> and <strong>Guma</strong>. Rooted in the timeless truths of Scripture, we are committed to living and sharing the{" "}
+            <strong>Three Angels' Messages</strong> of Revelation 14 — calling people to worship the Creator, announcing Christ's soon return, and inviting all to receive His grace and truth.
+          </p>
+          <p className="mt-6">
+            Our name reflects our vision: to be a{" "}
+            <strong>"Chia View"</strong> — a place where people can clearly see the love of Jesus reflected in our lives, our service, and our hope in His promised return.
+          </p>
+        </div>
+      </motion.div>
 
-      {/* Enhanced Values - Glassmorphism */}
-      <section className="py-24 bg-gradient-to-b from-gray-50 to-blue-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.h2 
-            className="text-4xl sm:text-5xl font-black text-center mb-20 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 bg-clip-text text-transparent"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+      {/* Our Story / Where We Serve */}
+      <div className="mx-auto max-w-7xl px-6 pb-20">
+        <div className="grid gap-12 md:grid-cols-2 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            Our Core Values
-          </motion.h2>
-          <motion.div 
-            className="grid md:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
+            <h2 className="mb-6 text-4xl font-bold text-blue-900">
+              Our Journey in Malawi
+            </h2>
+            <p className="text-lg text-gray-700 mb-6">
+              From humble beginnings, God has grown our ministry to reach beyond our local congregations. Today, our mission centers in Dowa and Guma serve as hubs for worship, discipleship, and outreach across the central region.
+            </p>
+            <p className="text-lg text-gray-700">
+              We extend our reach through partnerships and programs into neighboring districts including Nkhotakota, Salima, Ntchisi, and beyond — bringing food relief, health education, youth mentorship, Bible studies, and the hope of the gospel to families and communities in need.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="rounded-2xl overflow-hidden shadow-2xl border border-blue-200"
           >
-            {[
-              {
-                title: "Faith",
-                description: "We are rooted in unwavering faith, guiding every action with love and devotion.",
-                icon: "/pray.png",
-                gradient: "from-blue-500 to-indigo-600"
-              },
-              {
-                title: "Community", 
-                description: "We build strong, supportive communities that uplift and strengthen one another.",
-                icon: "/comm.png",
-                gradient: "from-emerald-500 to-teal-600"
-              },
-              {
-                title: "Service",
-                description: "We serve with compassion, helping those in need through dedicated outreach programs.",
-                icon: "/youth.png",
-                gradient: "from-purple-500 to-pink-600"
-              },
-            ].map((value, index) => (
-              <motion.div
-                key={index}
-                className={`group relative bg-white/60 backdrop-blur-xl rounded-3xl p-10 text-center hover:scale-105 transition-all duration-500 border border-white/30 shadow-2xl hover:shadow-3xl hover:shadow-purple-500/25 overflow-hidden cursor-pointer ${value.gradient} bg-gradient-to-br`}
-                variants={itemVariants}
-                whileHover={{ y: -10 }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10">
-                  <motion.img 
-                    src={value.icon} 
-                    alt={value.title} 
-                    className="mx-auto mb-6 h-20 w-20 drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                  />
-                  <h3 className="text-2xl font-bold text-white mb-4 drop-shadow-md">{value.title}</h3>
-                  <p className="text-white/90 leading-relaxed drop-shadow-md">{value.description}</p>
-                </div>
-              </motion.div>
-            ))}
+            <Image
+              src="/map-malawi-central.jpg" // Replace with your actual map image or use MapSection component
+              alt="Central Malawi - Our Reach"
+              width={600}
+              height={400}
+              className="w-full h-auto"
+            />
           </motion.div>
         </div>
-      </section>
+      </div>
 
-      {/* Enhanced Leadership */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
-        <motion.h2 
-          className="text-4xl sm:text-5xl font-black text-center mb-20 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900 bg-clip-text text-transparent"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          Our Leadership
-        </motion.h2>
-        <motion.div 
-          className="grid md:grid-cols-3 gap-8"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          {[
-            { name: "Pastor John Phiri", role: "CMC President", img: "/team/pastor.jpg" },
-            { name: "Pastor Paul Kamgoma", role: "Executive Secretary", img: "/team/jane.jpg" },
-            { name: "Elder Chipatla", role: "Chief Financial Officer", img: "/team/mark.jpg" },
-          ].map((member, index) => (
-            <motion.div
-              key={index}
-              className="group bg-gradient-to-br from-white/70 to-gray-50/50 backdrop-blur-xl rounded-3xl overflow-hidden hover:scale-105 transition-all duration-700 border border-white/40 shadow-2xl hover:shadow-3xl hover:shadow-blue-500/25 cursor-pointer relative"
-              variants={itemVariants}
-              whileHover={{ y: -15 }}
-            >
-              <div className="relative h-72 overflow-hidden">
-                <img 
-                  src={member.img} 
-                  alt={member.name} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </div>
-              <div className="p-8 text-center relative z-10">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{member.name}</h3>
-                <p className="text-blue-900 font-semibold text-lg bg-white/50 px-4 py-2 rounded-full inline-block backdrop-blur-sm">{member.role}</p>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
+      {/* Core Values */}
+      <div className="bg-blue-900/5 py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <motion.h2
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="mb-12 text-center text-4xl font-bold text-blue-900"
+          >
+            What Guides Us
+          </motion.h2>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {teamValues.map((value, index) => (
+              <motion.div
+                key={value.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow text-center border border-blue-100"
+              >
+                <div className="text-5xl mb-4">{value.icon}</div>
+                <h3 className="text-xl font-bold text-blue-900 mb-3">{value.title}</h3>
+                <p className="text-gray-700">{value.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
 
-      {/* Enhanced Call to Action */}
-      <motion.section
-        className="relative py-24 px-6 overflow-hidden"
-        initial={{ opacity: 0, y: 50 }}
+      {/* Call to Action */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 1 }}
+        className="bg-blue-900 py-20 px-6 text-center text-white"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900 via-purple-900 to-indigo-900"></div>
-        <div className="relative z-10 text-center max-w-4xl mx-auto">
-          <motion.h2 
-            className="text-5xl sm:text-6xl md:text-7xl font-black text-white mb-6 drop-shadow-2xl"
-            animate={{ scale: [1, 1.02, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
+        <h2 className="mb-6 text-4xl md:text-5xl font-bold">
+          Be Part of What God Is Doing
+        </h2>
+        <p className="mx-auto mb-10 max-w-3xl text-xl md:text-2xl">
+          Whether you're seeking truth, looking for fellowship, or wanting to serve — there's a place for you at Chia View Church Mission.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          <Link
+            href="/Register"
+            className="inline-block rounded-full bg-white px-10 py-5 text-xl font-bold text-blue-900 shadow-xl hover:bg-gray-100 transition hover:scale-105"
           >
-            Join Our Journey
-          </motion.h2>
-          <p className="text-xl sm:text-2xl text-blue-100 mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
-            Be part of our mission to bring hope, love, and transformation to our community.
-          </p>
-          <motion.a
+            Join Our Family
+          </Link>
+          <Link
             href="#contact"
-            className="group inline-flex items-center bg-white text-blue-900 font-bold py-6 px-12 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 text-xl backdrop-blur-sm border-4 border-white/30"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="inline-block rounded-full bg-transparent border-2 border-white px-10 py-5 text-xl font-bold hover:bg-white/10 transition"
           >
-            Get Involved Today
-            <svg className="ml-4 w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </motion.a>
+            Get in Touch
+          </Link>
         </div>
-      </motion.section>
+      </motion.div>
     </section>
   );
 }
