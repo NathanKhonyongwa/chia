@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "dev": "cd chiaview && npm run dev"
+  },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "framer-motion": "^12.26.1",

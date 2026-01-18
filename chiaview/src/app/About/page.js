@@ -27,7 +27,7 @@ export default function AboutUsPage() {
       <div className="relative w-full h-screen bg-cover bg-center flex items-center justify-center overflow-hidden">
         <div 
           className="absolute inset-0 bg-gradient-to-r from-blue-900/40 via-purple-900/30 to-indigo-900/50"
-          style={{ backgroundImage: "url('/2.jpg')" }}
+          style={{ backgroundImage: "url('/2.JPG')" }}
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(120,119,198,0.3),transparent_50%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.2),transparent_50%)]"></div>
         <motion.div

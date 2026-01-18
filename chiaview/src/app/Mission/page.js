@@ -26,7 +26,7 @@ const focusAreas = [
 
 export default function Mission() {
   return (
-    <section className="bg-blue-100">
+    <section id="mission" className="bg-blue-100">
       {/* Hero */}
       <div
         className="relative flex h-[60vh] w-full items-center justify-center bg-cover bg-center"

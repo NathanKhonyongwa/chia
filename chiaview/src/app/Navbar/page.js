@@ -18,15 +18,15 @@ export default function Navbar() {
             </Link>
           </li>
           <li>
-            <Link href="./Register" className="hover:text-blue-300 transition-colors">
-              Register
-            </Link>
-          </li>
-          <li>
-            <Link href="./About/" className="hover:text-blue-300 transition-colors">
-              About Us
-            </Link>
-          </li>
+          <Link href="/Register" className="hover:text-blue-300 transition-colors">
+            Register
+          </Link>
+        </li>
+        <li>
+          <Link href="/About" className="hover:text-blue-300 transition-colors">
+            About Us
+          </Link>
+        </li>
           <li>
             <Link href="#contact" className="hover:text-blue-300 transition-colors">
               Contact
@@ -38,9 +38,11 @@ export default function Navbar() {
         <div className="flex-shrink-0 ml-auto">
           <Link href="#home">
             <img
-              src="/logo.PNG" 
-              alt="Chia View Logo"
+              src="/logo.png" 
+              alt="Chia View Church Mission Logo"
               className="h-20 w-auto"
+              width={80}
+              height={80}
             />
           </Link>
         </div>
@@ -49,12 +51,15 @@ export default function Navbar() {
         <div className="md:hidden flex items-center">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="text-white focus:outline-none"
+            className="text-white focus:outline-none focus:ring-2 focus:ring-blue-300 rounded p-2"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
           >
             {menuOpen ? (
-              <span className="text-2xl font-bold">&times;</span> // simple X icon
+              <span className="text-2xl font-bold" aria-hidden="true">&times;</span>
             ) : (
-              <span className="text-2xl font-bold">&#9776;</span> // hamburger icon
+              <span className="text-2xl font-bold" aria-hidden="true">&#9776;</span>
             )}
           </button>
         </div>
@@ -62,7 +67,11 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-blue-900/95 backdrop-blur-md w-full px-6 py-4 flex flex-col space-y-4 text-white font-medium">
+        <div 
+          id="mobile-menu"
+          className="md:hidden bg-blue-900/95 backdrop-blur-md w-full px-6 py-4 flex flex-col space-y-4 text-white font-medium"
+          role="menu"
+        >
           <Link href="#home" className="hover:text-blue-300 transition-colors" onClick={() => setMenuOpen(false)}>
             Home
           </Link>
