@@ -1,3 +1,14 @@
+/**
+ * LoginPage - User login form component
+ * Features:
+ * - Email and password validation
+ * - Password visibility toggle
+ * - Forgot password link
+ * - Success/error handling with user feedback
+ * - Accessibility features (ARIA labels, proper form semantics)
+ * - Robust error handling for authentication
+ */
+
 "use client";
 
 import { useState, useTransition } from "react";
@@ -5,54 +16,74 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { FaEye, FaEyeSlash, FaChurch, FaShieldAlt, FaCheckCircle } from "react-icons/fa";
 import Navbar from "../Navbar/page";
+import { useFormHandler } from "@/hooks/useFormHandler";
+import { usePasswordVisibility } from "@/hooks/usePasswordVisibility";
+import { validateLoginForm } from "@/utils/validation";
 
 export default function LoginPage() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
+  // Custom hooks for form state management
+  const { formData, errors, handleChange, validateForm, reset } = useFormHandler(
+    { email: "", password: "" },
+    validateLoginForm
+  );
+
+  const { showPassword, togglePasswordVisibility } = usePasswordVisibility(["password"]);
+
   const [isPending, startTransition] = useTransition();
   const [submitStatus, setSubmitStatus] = useState("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Please enter a valid email";
-    if (!formData.password) newErrors.password = "Password is required";
-    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
-  };
-
+  /**
+   * Handle form submission with error handling
+   * Validates form, sends credentials to server, and manages success/error states
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    setErrorMessage("");
+
+    if (!validateForm()) {
+      return;
+    }
 
     startTransition(async () => {
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        console.log("Login successful:", formData);
+        // Simulate API call - replace with actual backend authentication
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Login failed. Please check your credentials.");
+        }
+
+        const data = await response.json();
+        console.log("Login successful for:", formData.email);
+        
+        // Store auth token if provided
+        if (data.token) {
+          localStorage.setItem("authToken", data.token);
+        }
+
         setSubmitStatus("success");
+        reset();
       } catch (error) {
+        console.error("Login error:", error);
+        setErrorMessage(error.message || "An error occurred. Please try again later.");
         setSubmitStatus("error");
       }
     });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-100 relative overflow-hidden" role="main" aria-label="User login page">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-indigo-300/20 via-purple-300/10 to-pink-300/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}} />
-        <div className="absolute top-1/2 left-10 w-20 h-20 bg-gradient-to-r from-white/40 to-blue-200/40 rounded-full blur-xl animate-ping" style={{animationDelay: '1s'}} />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-r from-indigo-300/20 via-purple-300/10 to-pink-300/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: "2s"}} />
+        <div className="absolute top-1/2 left-10 w-20 h-20 bg-gradient-to-r from-white/40 to-blue-200/40 rounded-full blur-xl animate-ping" style={{animationDelay: "1s"}} />
       </div>
 
       <Navbar />
@@ -95,12 +126,12 @@ export default function LoginPage() {
                     Welcome Back!
                   </motion.h1>
                   <p className="text-xl text-gray-700 font-medium mb-8">
-                    You're now connected to the mission
+                    You are now connected to the mission
                   </p>
                   <motion.button
                     onClick={() => {
                       setSubmitStatus("idle");
-                      setFormData({ email: "", password: "" });
+                      reset();
                     }}
                     whileHover={{ scale: 1.05 }}
                     className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:from-emerald-700 hover:to-teal-700"
@@ -135,23 +166,37 @@ export default function LoginPage() {
                     >
                       Sign in to continue the mission
                     </motion.p>
+                    {errorMessage && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
+                        role="alert"
+                      >
+                        {errorMessage}
+                      </motion.div>
+                    )}
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
                     {/* Email Field */}
                     <motion.div className="space-y-2" layout>
-                      <label className="font-semibold text-sm text-gray-700 uppercase tracking-wide flex items-center">
+                      <label htmlFor="email" className="font-semibold text-sm text-gray-700 uppercase tracking-wide flex items-center">
                         <FaShieldAlt className="w-4 h-4 mr-2 text-blue-500" />
                         Email Address
                       </label>
                       <div className="relative">
                         <motion.input
+                          id="email"
                           name="email"
                           type="email"
                           value={formData.email}
                           onChange={handleChange}
                           placeholder="you@example.com"
                           disabled={isPending}
+                          aria-describedby={errors.email ? "email-error" : undefined}
+                          aria-invalid={!!errors.email}
+                          required
                           className={`w-full px-5 py-5 rounded-2xl border-2 bg-white/60 backdrop-blur-sm text-gray-900 placeholder-gray-500 font-medium focus:outline-none transition-all duration-300 pr-5 ${
                             errors.email
                               ? "border-red-400 focus:border-red-500 shadow-red-100"
@@ -161,6 +206,7 @@ export default function LoginPage() {
                         />
                         {errors.email && (
                           <motion.p 
+                            id="email-error"
                             className="text-red-500 text-xs mt-2 flex items-center font-medium"
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -173,17 +219,21 @@ export default function LoginPage() {
 
                     {/* Password Field */}
                     <motion.div className="space-y-2" layout>
-                      <label className="font-semibold text-sm text-gray-700 uppercase tracking-wide flex items-center">
+                      <label htmlFor="password" className="font-semibold text-sm text-gray-700 uppercase tracking-wide flex items-center">
                         Password
                       </label>
                       <div className="relative">
                         <motion.input
+                          id="password"
                           name="password"
-                          type={showPassword ? "text" : "password"}
+                          type={showPassword.password ? "text" : "password"}
                           value={formData.password}
                           onChange={handleChange}
                           placeholder="••••••••"
                           disabled={isPending}
+                          aria-describedby={errors.password ? "password-error" : undefined}
+                          aria-invalid={!!errors.password}
+                          required
                           className={`w-full px-5 py-5 rounded-2xl border-2 bg-white/60 backdrop-blur-sm text-gray-900 placeholder-gray-500 font-medium focus:outline-none pr-14 transition-all duration-300 ${
                             errors.password
                               ? "border-red-400 focus:border-red-500 shadow-red-100"
@@ -193,11 +243,12 @@ export default function LoginPage() {
                         />
                         <button
                           type="button"
-                          onClick={() => setShowPassword(!showPassword)}
+                          onClick={() => togglePasswordVisibility("password")}
                           disabled={isPending}
+                          aria-label={showPassword.password ? "Hide password" : "Show password"}
                           className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-white/50 rounded-lg transition-all group"
                         >
-                          {showPassword ? (
+                          {showPassword.password ? (
                             <FaEyeSlash className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
                           ) : (
                             <FaEye className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
@@ -205,6 +256,7 @@ export default function LoginPage() {
                         </button>
                         {errors.password && (
                           <motion.p 
+                            id="password-error"
                             className="text-red-500 text-xs mt-2 flex items-center font-medium"
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -224,6 +276,7 @@ export default function LoginPage() {
                       <Link
                         href="/forgot-password"
                         className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-all duration-200 flex items-center justify-end group"
+                        aria-label="Go to forgot password page"
                       >
                         Forgot password?
                         <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,6 +289,7 @@ export default function LoginPage() {
                     <motion.button
                       type="submit"
                       disabled={isPending || submitStatus === "success"}
+                      aria-busy={isPending}
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
                       className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-6 px-8 rounded-3xl shadow-2xl hover:shadow-3xl focus:outline-none focus:ring-4 focus:ring-blue-500/30 transition-all duration-300 text-lg backdrop-blur-sm border border-transparent hover:border-white/30 relative overflow-hidden group"
@@ -262,10 +316,11 @@ export default function LoginPage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              Don’t have an account?{" "}
+              Don't have an account?{" "}
               <Link 
                 href="/Register" 
                 className="font-bold text-blue-600 hover:text-blue-700 bg-gradient-to-r from-blue-50 to-indigo-50 bg-[length:0%_100%] hover:bg-[length:100%_100%] bg-no-repeat bg-left transition-all duration-500 px-2 py-1 rounded-lg font-semibold group"
+                aria-label="Go to registration page"
               >
                 Create Account
               </Link>

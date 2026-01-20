@@ -1,29 +1,48 @@
+/**
+ * RootLayout - Main application layout wrapper
+ * Features:
+ * - Global font configuration (Geist Sans & Mono)
+ * - Global stylesheet
+ * - Navigation shell
+ * - SEO metadata
+ * - Accessibility configuration
+ */
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import NavbarShell from "./NavbarShell";
+import { AuthProvider } from "@/context/AuthContext";
 
+// Configure Geist font family as primary sans-serif
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
+// Configure Geist Mono for code/monospace text
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
+/**
+ * SEO metadata for the application
+ * Used by search engines and social media platforms
+ */
 export const metadata = {
   title: "Chia View Church Mission - Spreading Hope & God's Love",
-  description: "Chia View Church Mission serves the community through faith-driven initiatives, spiritual guidance, and compassionate outreach. Join us in spreading hope and transforming lives.",
+  description:
+    "Chia View Church Mission serves the community through faith-driven initiatives, spiritual guidance, and compassionate outreach. Join us in spreading hope and transforming lives.",
   keywords: ["church", "mission", "faith", "community", "spiritual growth", "Chia View"],
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <AuthProvider>
+          <NavbarShell>{children}</NavbarShell>
+        </AuthProvider>
       </body>
     </html>
   );
