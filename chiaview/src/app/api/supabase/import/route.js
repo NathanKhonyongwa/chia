@@ -3,10 +3,11 @@
  * POST /api/supabase/import - Import/restore data
  */
 
-import { supabase } from "@/lib/supabase";
+import { requireSupabaseConfigured, supabase } from "@/lib/supabase";
 
 export async function POST(request) {
   try {
+    requireSupabaseConfigured();
     const body = await request.json();
     const { backup } = body;
 

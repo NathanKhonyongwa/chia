@@ -12,7 +12,6 @@
 
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { useBackup } from "@/hooks/useDatabase";
 import { useToast } from "@/hooks/useToast";
 import {
   FaDownload,
@@ -23,10 +22,11 @@ import {
 } from "react-icons/fa";
 
 export default function DataBackupManager() {
-  const { createBackup, restoreBackup, isBackingUp, isRestoring, error } =
-    useBackup();
   const { showToast } = useToast() || {};
   const fileInputRef = useRef(null);
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+  const [error, setError] = useState(null);
   const [backups, setBackups] = useState([
     {
       id: 1,
@@ -46,7 +46,27 @@ export default function DataBackupManager() {
 
   const handleCreateBackup = async () => {
     try {
-      await createBackup();
+      setIsBackingUp(true);
+      setError(null);
+
+      const res = await fetch("/api/supabase/export");
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to export data");
+      }
+
+      const blob = new Blob([JSON.stringify(json.backup, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = json.fileName || `backup-${Date.now()}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
       if (showToast) {
         showToast("Backup created successfully!", "success");
       }
@@ -61,9 +81,12 @@ export default function DataBackupManager() {
         ...backups,
       ]);
     } catch (err) {
+      setError(err.message || "Failed to create backup");
       if (showToast) {
         showToast("Failed to create backup", "error");
       }
+    } finally {
+      setIsBackingUp(false);
     }
   };
 
@@ -75,14 +98,32 @@ export default function DataBackupManager() {
     const file = event.target.files?.[0];
     if (file) {
       try {
-        await restoreBackup(file);
+        setIsRestoring(true);
+        setError(null);
+
+        const text = await file.text();
+        const backup = JSON.parse(text);
+
+        const res = await fetch("/api/supabase/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ backup }),
+        });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          throw new Error(json.error || "Failed to restore backup");
+        }
+
         if (showToast) {
           showToast("Backup restored successfully!", "success");
         }
       } catch (err) {
+        setError(err.message || "Failed to restore backup");
         if (showToast) {
           showToast("Failed to restore backup", "error");
         }
+      } finally {
+        setIsRestoring(false);
       }
     }
   };

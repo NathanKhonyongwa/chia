@@ -12,6 +12,16 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn("Supabase environment variables not configured");
 }
 
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
+
+export function requireSupabaseConfigured() {
+  if (!isSupabaseConfigured) {
+    throw new Error(
+      "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    );
+  }
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 /**

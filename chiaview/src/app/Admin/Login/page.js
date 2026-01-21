@@ -69,22 +69,26 @@ export default function AdminLogin() {
 
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const result = await login(formData.email, formData.password);
+      if (result.success) {
+        showToast(`Welcome back, ${result.admin?.name || "Admin"}!`, "success");
+        router.push("/Admin");
+        return;
+      }
+
+      // Fallback to demo accounts (optional)
       const demoAccount = demoAccounts.find(
         (acc) => acc.email === formData.email && acc.password === formData.password
       );
-
       if (demoAccount) {
-        const name = formData.email.split("@")[0].charAt(0).toUpperCase() + formData.email.split("@")[0].slice(1);
-        login(formData.email, formData.password, name);
-        showToast(`Welcome back, ${name}!`, "success");
-        router.push("/Admin");
+        showToast("Demo login succeeded, but Supabase auth is not configured.", "error");
       } else {
-        showToast("Invalid email or password. Try admin@chiaview.com / Admin@123", "error");
+        showToast(result.error || "Invalid email or password", "error");
       }
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   if (admin) {

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "smoke:admin": "node scripts/smoke-admin.mjs http://localhost:3000"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

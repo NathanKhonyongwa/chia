@@ -3,10 +3,11 @@
  * GET /api/supabase/export - Export all data
  */
 
-import { supabase } from "@/lib/supabase";
+import { requireSupabaseConfigured, supabase } from "@/lib/supabase";
 
 export async function GET(request) {
   try {
+    requireSupabaseConfigured();
     // Fetch all data from data_store table
     const { data, error } = await supabase.from("data_store").select("*");
 

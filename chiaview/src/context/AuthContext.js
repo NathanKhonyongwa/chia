@@ -9,30 +9,45 @@ export function AuthProvider({ children }) {
   const [admin, setAdmin] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load admin from localStorage on mount
+  // Load admin session from server on mount (httpOnly cookie)
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("admin_user");
-      if (stored) {
-        setAdmin(JSON.parse(stored));
+    const load = async () => {
+      try {
+        const res = await fetch("/api/admin/me");
+        const json = await res.json();
+        if (json?.success) {
+          setAdmin(json.admin || null);
+        } else {
+          setAdmin(null);
+        }
+      } catch (error) {
+        console.error("Error loading admin:", error);
+        setAdmin(null);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error loading admin:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    };
+    load();
   }, []);
 
-  const login = (email, password, name) => {
-    // Simple demo authentication (in production, call backend API)
-    const adminUser = { email, name, id: Date.now() };
-    localStorage.setItem("admin_user", JSON.stringify(adminUser));
-    setAdmin(adminUser);
-    return true;
+  const login = async (email, password) => {
+    const res = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      return { success: false, error: json.error || "Login failed" };
+    }
+    setAdmin(json.admin);
+    return { success: true, admin: json.admin };
   };
 
-  const logout = () => {
-    localStorage.removeItem("admin_user");
+  const logout = async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } catch {}
     setAdmin(null);
   };
 

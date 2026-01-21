@@ -8,8 +8,6 @@ import { useToast } from "@/hooks/useToast";
 import Link from "next/link";
 import DataBackupManager from "@/components/DataBackupManager";
 
-const STORAGE_KEY = "chiaview_website_settings";
-
 const initialSettings = {
   general: {
     siteName: "Chia View Church",
@@ -43,34 +41,59 @@ export default function SettingsManagement() {
   );
   const [activeTab, setActiveTab] = useState("general");
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Load settings from localStorage
+  const loadSettings = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/settings");
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to load settings");
+      }
+      const rows = Array.isArray(json.settings) ? json.settings : [];
+      const byKey = new Map(rows.map((r) => [r.key, r.value]));
+
+      const merged = {
+        general: byKey.get("general") || initialSettings.general,
+        social: byKey.get("social") || initialSettings.social,
+        maintenance: byKey.get("maintenance") || initialSettings.maintenance,
+      };
+
+      setSettings(merged);
+      setGeneralForm(merged.general);
+      setSocialForm(merged.social);
+      setMaintenanceForm(merged.maintenance);
+    } catch (error) {
+      showToast(error.message || "Failed to load settings", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const upsertSetting = async (key, value, description) => {
+    const res = await fetch("/api/settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, value, description }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      throw new Error(json.error || "Failed to save setting");
+    }
+    return json.setting;
+  };
+
+  // Load settings from Supabase via API
   useEffect(() => {
     if (!admin) {
       router.push("/Admin/Login");
       return;
     }
 
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setSettings(parsed);
-        setGeneralForm(parsed.general);
-        setSocialForm(parsed.social);
-        setMaintenanceForm(parsed.maintenance);
-      } catch (error) {
-        console.error("Error loading settings:", error);
-      }
-    }
-    setLoading(false);
+    loadSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [admin, router]);
-
-  // Save settings to localStorage
-  const saveSettings = (newSettings) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
-    setSettings(newSettings);
-  };
 
   const handleGeneralInputChange = (e) => {
     const { name, value } = e.target;
@@ -138,24 +161,36 @@ export default function SettingsManagement() {
     e.preventDefault();
     if (!validateGeneralForm()) return;
 
-    const updatedSettings = {
-      ...settings,
-      general: { ...generalForm },
-    };
-    saveSettings(updatedSettings);
-    showToast("General settings updated successfully!", "success");
+    const updatedSettings = { ...settings, general: { ...generalForm } };
+    setIsSaving(true);
+    Promise.resolve()
+      .then(async () => {
+        await upsertSetting(
+          "general",
+          updatedSettings.general,
+          "General website settings"
+        );
+        setSettings(updatedSettings);
+        showToast("General settings updated successfully!", "success");
+      })
+      .catch((err) => showToast(err.message || "Failed to save settings", "error"))
+      .finally(() => setIsSaving(false));
   };
 
   const handleSocialSubmit = (e) => {
     e.preventDefault();
     if (!validateSocialForm()) return;
 
-    const updatedSettings = {
-      ...settings,
-      social: { ...socialForm },
-    };
-    saveSettings(updatedSettings);
-    showToast("Social media links updated successfully!", "success");
+    const updatedSettings = { ...settings, social: { ...socialForm } };
+    setIsSaving(true);
+    Promise.resolve()
+      .then(async () => {
+        await upsertSetting("social", updatedSettings.social, "Social media URLs");
+        setSettings(updatedSettings);
+        showToast("Social media links updated successfully!", "success");
+      })
+      .catch((err) => showToast(err.message || "Failed to save settings", "error"))
+      .finally(() => setIsSaving(false));
   };
 
   const handleMaintenanceSubmit = (e) => {
@@ -166,12 +201,20 @@ export default function SettingsManagement() {
       return;
     }
 
-    const updatedSettings = {
-      ...settings,
-      maintenance: { ...maintenanceForm },
-    };
-    saveSettings(updatedSettings);
-    showToast("Maintenance settings updated successfully!", "success");
+    const updatedSettings = { ...settings, maintenance: { ...maintenanceForm } };
+    setIsSaving(true);
+    Promise.resolve()
+      .then(async () => {
+        await upsertSetting(
+          "maintenance",
+          updatedSettings.maintenance,
+          "Maintenance mode settings"
+        );
+        setSettings(updatedSettings);
+        showToast("Maintenance settings updated successfully!", "success");
+      })
+      .catch((err) => showToast(err.message || "Failed to save settings", "error"))
+      .finally(() => setIsSaving(false));
   };
 
   const resetSettings = () => {
@@ -180,12 +223,22 @@ export default function SettingsManagement() {
         "Are you sure you want to reset all settings to defaults? This cannot be undone."
       )
     ) {
-      setSettings(initialSettings);
-      setGeneralForm(initialSettings.general);
-      setSocialForm(initialSettings.social);
-      setMaintenanceForm(initialSettings.maintenance);
-      localStorage.removeItem(STORAGE_KEY);
-      showToast("Settings reset to defaults!", "success");
+      setIsSaving(true);
+      Promise.resolve()
+        .then(async () => {
+          await Promise.all([
+            upsertSetting("general", initialSettings.general, "General website settings"),
+            upsertSetting("social", initialSettings.social, "Social media URLs"),
+            upsertSetting("maintenance", initialSettings.maintenance, "Maintenance mode settings"),
+          ]);
+          setSettings(initialSettings);
+          setGeneralForm(initialSettings.general);
+          setSocialForm(initialSettings.social);
+          setMaintenanceForm(initialSettings.maintenance);
+          showToast("Settings reset to defaults!", "success");
+        })
+        .catch((err) => showToast(err.message || "Failed to reset settings", "error"))
+        .finally(() => setIsSaving(false));
     }
   };
 
@@ -349,9 +402,10 @@ export default function SettingsManagement() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 type="submit"
+                disabled={isSaving}
                 className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold py-3 rounded-lg transition"
               >
-                💾 Save General Settings
+                {isSaving ? "Saving..." : "💾 Save General Settings"}
               </motion.button>
             </form>
           </motion.div>
@@ -430,9 +484,10 @@ export default function SettingsManagement() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 type="submit"
+                disabled={isSaving}
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 rounded-lg transition"
               >
-                💾 Save Social Media Links
+                {isSaving ? "Saving..." : "💾 Save Social Media Links"}
               </motion.button>
             </form>
           </motion.div>
@@ -501,9 +556,10 @@ export default function SettingsManagement() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 type="submit"
+                disabled={isSaving}
                 className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-bold py-3 rounded-lg transition"
               >
-                💾 Save Maintenance Settings
+                {isSaving ? "Saving..." : "💾 Save Maintenance Settings"}
               </motion.button>
             </form>
           </motion.div>
@@ -515,6 +571,7 @@ export default function SettingsManagement() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={resetSettings}
+            disabled={isSaving}
             className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition"
           >
             🔄 Reset to Default Settings
