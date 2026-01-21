@@ -19,6 +19,8 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/effect-fade";
 import ContactForm from "@/components/ContactForm";
+import TestimonialsCarousel from "@/components/TestimonialsCarousel";
+import CTACards from "@/components/CTACards";
 
 /**
  * Hero slides data with inspiring messages
@@ -213,6 +215,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <TestimonialsCarousel />
+
+      {/* CTA Cards Section */}
+      <CTACards />
 
       {/* Call to Action Section */}
       <section className="py-20 px-6 bg-blue-900 text-white" aria-label="Call to action">

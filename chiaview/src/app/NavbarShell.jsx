@@ -7,7 +7,7 @@ import Footer from "./Footer";
 export default function NavbarShell({ children }) {
   return (
     <>
-      <Navbar />
+      <Navbar aria-label="Main Navigation" />
       <div className="flex flex-col min-h-screen">
         <main className="pt-24 md:pt-28 flex-grow w-full">{children}</main>
         <Footer />

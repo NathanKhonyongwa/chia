@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/useToast";
 
-const STORAGE_KEY = "chiaview_testimonials";
+
 
 export default function TestimonialsManagement() {
   const router = useRouter();
@@ -24,28 +24,78 @@ export default function TestimonialsManagement() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Load testimonials from localStorage
+  // Load testimonials from API
   useEffect(() => {
     if (!admin) {
       router.push("/Admin/Login");
       return;
     }
-
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
+    const fetchTestimonials = async () => {
+      setLoading(true);
       try {
-        setTestimonials(JSON.parse(saved));
+        const res = await fetch("/api/testimonials");
+        const json = await res.json();
+        if (json.success && Array.isArray(json.testimonials)) {
+          setTestimonials(json.testimonials);
+        }
       } catch (error) {
-        console.error("Error loading testimonials:", error);
+        showToast("Failed to load testimonials", "error");
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+    fetchTestimonials();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [admin, router]);
 
-  // Save testimonials to localStorage
-  const saveTestimonials = (newTestimonials) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newTestimonials));
-    setTestimonials(newTestimonials);
+  // Add or update testimonial via API
+  const saveTestimonial = async (testimonial, isEdit = false) => {
+    try {
+      if (isEdit) {
+        const res = await fetch(`/api/testimonials/${testimonial.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(testimonial),
+        });
+        const json = await res.json();
+        if (json.success) {
+          setTestimonials((prev) => prev.map((t) => t.id === testimonial.id ? json.testimonial : t));
+          showToast("Testimonial updated successfully!", "success");
+        } else {
+          showToast(json.error || "Failed to update testimonial", "error");
+        }
+      } else {
+        const res = await fetch("/api/testimonials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(testimonial),
+        });
+        const json = await res.json();
+        if (json.success) {
+          setTestimonials((prev) => [json.testimonial, ...prev]);
+          showToast("Testimonial added successfully!", "success");
+        } else {
+          showToast(json.error || "Failed to add testimonial", "error");
+        }
+      }
+    } catch (error) {
+      showToast("Failed to save testimonial", "error");
+    }
+  };
+
+  // Delete testimonial via API
+  const deleteTestimonial = async (id) => {
+    try {
+      const res = await fetch(`/api/testimonials/${id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (json.success) {
+        setTestimonials((prev) => prev.filter((t) => t.id !== id));
+        showToast("Testimonial deleted successfully!", "success");
+      } else {
+        showToast(json.error || "Failed to delete testimonial", "error");
+      }
+    } catch (error) {
+      showToast("Failed to delete testimonial", "error");
+    }
   };
 
   const handleInputChange = (e) => {
@@ -73,31 +123,15 @@ export default function TestimonialsManagement() {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     if (editingId) {
-      const updated = testimonials.map((t) =>
-        t.id === editingId
-          ? { ...t, ...formData, updatedAt: new Date().toISOString() }
-          : t
-      );
-      saveTestimonials(updated);
-      showToast("Testimonial updated successfully!", "success");
+      await saveTestimonial({ ...formData, id: editingId }, true);
       setEditingId(null);
     } else {
-      const newTestimonial = {
-        id: Date.now().toString(),
-        ...formData,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      saveTestimonials([newTestimonial, ...testimonials]);
-      showToast("Testimonial added successfully!", "success");
+      await saveTestimonial(formData, false);
     }
-
     setFormData({ name: "", role: "", quote: "", category: "Donor" });
     setShowForm(false);
   };
@@ -113,10 +147,9 @@ export default function TestimonialsManagement() {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this testimonial?")) {
-      saveTestimonials(testimonials.filter((t) => t.id !== id));
-      showToast("Testimonial deleted successfully!", "success");
+      await deleteTestimonial(id);
     }
   };
 

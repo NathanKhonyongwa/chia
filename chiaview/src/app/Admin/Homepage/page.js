@@ -7,35 +7,15 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/useToast";
 import Link from "next/link";
 
-const STORAGE_KEY = "chiaview_homepage_content";
 
 const initialHomeContent = {
   hero: {
-    title: "Welcome to Chia View",
-    subtitle: "Empowering lives through faith, community, and service",
-    cta_button_text: "Get Involved",
+    title: "",
+    subtitle: "",
+    cta_button_text: "",
     background_image_url: "",
   },
-  coreValues: [
-    {
-      id: "1",
-      title: "Faith",
-      description: "Centered on Jesus Christ and biblical principles",
-      icon: "✨",
-    },
-    {
-      id: "2",
-      title: "Community",
-      description: "Building meaningful relationships and connections",
-      icon: "🤝",
-    },
-    {
-      id: "3",
-      title: "Service",
-      description: "Serving others and making a positive impact",
-      icon: "🙏",
-    },
-  ],
+  coreValues: [],
 };
 
 export default function HomepageManagement() {
@@ -53,31 +33,131 @@ export default function HomepageManagement() {
   const [editingValueId, setEditingValueId] = useState(null);
   const [activeTab, setActiveTab] = useState("hero");
   const [loading, setLoading] = useState(true);
+  const [heroSectionId, setHeroSectionId] = useState(null);
+  const [coreValueSections, setCoreValueSections] = useState([]); // Array of {id, content}
 
-  // Load content from localStorage
+  // Fetch homepage content from API
   useEffect(() => {
     if (!admin) {
       router.push("/Admin/Login");
       return;
     }
-
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
+    const fetchContent = async () => {
+      setLoading(true);
       try {
-        const parsed = JSON.parse(saved);
-        setHomeContent(parsed);
-        setHeroForm(parsed.hero);
+        const res = await fetch("/api/homepage");
+        const json = await res.json();
+        if (json.success && Array.isArray(json.sections)) {
+          // Find hero and coreValues sections
+          let hero = initialHomeContent.hero;
+          let heroId = null;
+          let coreValues = [];
+          let coreValueSectionsArr = [];
+          json.sections.forEach((section) => {
+            if (section.section === "hero") {
+              hero = section.content || initialHomeContent.hero;
+              heroId = section.id;
+            } else if (section.section === "core_value") {
+              // Each core value is a separate row
+              coreValues.push({ ...section.content, id: section.id });
+              coreValueSectionsArr.push(section);
+            }
+          });
+          setHomeContent({ hero, coreValues });
+          setHeroForm(hero);
+          setHeroSectionId(heroId);
+          setCoreValueSections(coreValueSectionsArr);
+        }
       } catch (error) {
-        console.error("Error loading homepage content:", error);
+        showToast("Failed to load homepage content", "error");
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+    fetchContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [admin, router]);
 
-  // Save content to localStorage
-  const saveContent = (newContent) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newContent));
-    setHomeContent(newContent);
+  // Save or update hero section
+  const saveHeroSection = async (heroData) => {
+    try {
+      const res = await fetch("/api/homepage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section: "hero", content: heroData, order_index: 0, visible: true }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setHeroSectionId(json.section.id);
+        setHomeContent((prev) => ({ ...prev, hero: heroData }));
+        showToast("Hero section updated successfully!", "success");
+      } else {
+        showToast(json.error || "Failed to save hero section", "error");
+      }
+    } catch (error) {
+      showToast("Failed to save hero section", "error");
+    }
+  };
+
+  // Add a new core value
+  const addCoreValue = async (valueData) => {
+    try {
+      const res = await fetch("/api/homepage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section: "core_value", content: valueData, order_index: 1, visible: true }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setHomeContent((prev) => ({ ...prev, coreValues: [...prev.coreValues, { ...valueData, id: json.section.id }] }));
+        setCoreValueSections((prev) => [...prev, json.section]);
+        showToast("Core value added successfully!", "success");
+      } else {
+        showToast(json.error || "Failed to add core value", "error");
+      }
+    } catch (error) {
+      showToast("Failed to add core value", "error");
+    }
+  };
+
+  // Update a core value
+  const updateCoreValue = async (id, valueData) => {
+    try {
+      const res = await fetch(`/api/homepage/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: valueData }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setHomeContent((prev) => ({
+          ...prev,
+          coreValues: prev.coreValues.map((v) => (v.id === id ? { ...valueData, id } : v)),
+        }));
+        setCoreValueSections((prev) => prev.map((s) => (s.id === id ? { ...s, content: valueData } : s)));
+        showToast("Core value updated successfully!", "success");
+      } else {
+        showToast(json.error || "Failed to update core value", "error");
+      }
+    } catch (error) {
+      showToast("Failed to update core value", "error");
+    }
+  };
+
+  // Delete a core value
+  const deleteCoreValue = async (id) => {
+    try {
+      const res = await fetch(`/api/homepage/${id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (json.success) {
+        setHomeContent((prev) => ({ ...prev, coreValues: prev.coreValues.filter((v) => v.id !== id) }));
+        setCoreValueSections((prev) => prev.filter((s) => s.id !== id));
+        showToast("Core value deleted successfully!", "success");
+      } else {
+        showToast(json.error || "Failed to delete core value", "error");
+      }
+    } catch (error) {
+      showToast("Failed to delete core value", "error");
+    }
   };
 
   const handleHeroInputChange = (e) => {
@@ -134,76 +214,31 @@ export default function HomepageManagement() {
     return true;
   };
 
-  const handleHeroSubmit = (e) => {
+  const handleHeroSubmit = async (e) => {
     e.preventDefault();
     if (!validateHeroForm()) return;
-
-    const updatedContent = {
-      ...homeContent,
-      hero: { ...heroForm },
-    };
-    saveContent(updatedContent);
-    showToast("Hero section updated successfully!", "success");
+    await saveHeroSection(heroForm);
   };
 
-  const handleAddValue = (e) => {
+  const handleAddValue = async (e) => {
     e.preventDefault();
     if (!validateValueForm()) return;
-
-    const updatedContent = {
-      ...homeContent,
-      coreValues: [
-        ...homeContent.coreValues,
-        {
-          id: Date.now().toString(),
-          ...valueForm,
-        },
-      ],
-    };
-    saveContent(updatedContent);
-    setValueForm({
-      title: "",
-      description: "",
-      icon: "✨",
-    });
-    showToast("Core value added successfully!", "success");
+    await addCoreValue(valueForm);
+    setValueForm({ title: "", description: "", icon: "✨" });
   };
 
-  const handleUpdateValue = (e) => {
+  const handleUpdateValue = async (e) => {
     e.preventDefault();
     if (!validateValueForm()) return;
-
-    const updatedContent = {
-      ...homeContent,
-      coreValues: homeContent.coreValues.map((v) =>
-        v.id === editingValueId
-          ? {
-              ...v,
-              title: valueForm.title,
-              description: valueForm.description,
-              icon: valueForm.icon,
-            }
-          : v
-      ),
-    };
-    saveContent(updatedContent);
-    setValueForm({
-      title: "",
-      description: "",
-      icon: "✨",
-    });
+    if (!editingValueId) return;
+    await updateCoreValue(editingValueId, valueForm);
+    setValueForm({ title: "", description: "", icon: "✨" });
     setEditingValueId(null);
-    showToast("Core value updated successfully!", "success");
   };
 
-  const handleDeleteValue = (id) => {
+  const handleDeleteValue = async (id) => {
     if (confirm("Are you sure you want to delete this core value?")) {
-      const updatedContent = {
-        ...homeContent,
-        coreValues: homeContent.coreValues.filter((v) => v.id !== id),
-      };
-      saveContent(updatedContent);
-      showToast("Core value deleted successfully!", "success");
+      await deleteCoreValue(id);
     }
   };
 

@@ -78,14 +78,32 @@ export default function Signup() {
 
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Submit registration to database
+      const response = await fetch("/api/registrations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          registrationType: "member",
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to create account");
+      }
+
+      const result = await response.json();
       
       login(formData.email, formData.password, formData.name);
       showToast("Account created successfully!", "success");
       router.push("/");
     } catch (error) {
-      showToast("Failed to create account", "error");
+      console.error("Registration error:", error);
+      showToast(error.message || "Failed to create account", "error");
     } finally {
       setIsLoading(false);
     }

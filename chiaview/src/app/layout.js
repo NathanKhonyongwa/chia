@@ -34,6 +34,25 @@ export const metadata = {
   description:
     "Chia View Church Mission serves the community through faith-driven initiatives, spiritual guidance, and compassionate outreach. Join us in spreading hope and transforming lives.",
   keywords: ["church", "mission", "faith", "community", "spiritual growth", "Chia View"],
+  openGraph: {
+    title: "Chia View Church Mission",
+    description: "Spreading Hope & God's Love through Faith-Driven Initiatives",
+    url: "https://chiamissionview.org",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Chia View Church Mission",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Chia View Church Mission",
+    description: "Spreading Hope & God's Love",
+  },
 };
 
 export default function RootLayout({ children }) {

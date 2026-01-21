@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/useToast";
 import Link from "next/link";
+import DataBackupManager from "@/components/DataBackupManager";
 
 const STORAGE_KEY = "chiaview_website_settings";
 
@@ -519,6 +520,16 @@ export default function SettingsManagement() {
             🔄 Reset to Default Settings
           </motion.button>
         </div>
+
+        {/* Data Backup Manager */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-12 pt-8 border-t border-gray-600"
+        >
+          <DataBackupManager />
+        </motion.div>
       </div>
     </section>
   );

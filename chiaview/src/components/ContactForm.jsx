@@ -22,6 +22,8 @@ const validateContactForm = (formData) => {
 
   if (!formData.name?.trim()) {
     errors.name = "Name is required";
+  } else if (formData.name.trim().length < 2) {
+    errors.name = "Name must be at least 2 characters";
   }
 
   if (!formData.email?.trim()) {
@@ -32,15 +34,33 @@ const validateContactForm = (formData) => {
 
   if (!formData.subject?.trim()) {
     errors.subject = "Subject is required";
+  } else if (formData.subject.trim().length < 3) {
+    errors.subject = "Subject must be at least 3 characters";
   }
 
   if (!formData.message?.trim()) {
     errors.message = "Message is required";
   } else if (formData.message.length < 10) {
     errors.message = "Message must be at least 10 characters";
+  } else if (formData.message.length > 5000) {
+    errors.message = "Message must not exceed 5000 characters";
   }
 
   return errors;
+};
+
+/**
+ * Sanitize user input to prevent XSS attacks
+ */
+const sanitizeInput = (input) => {
+  if (typeof input !== 'string') return '';
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .trim();
 };
 
 export default function ContactForm() {
@@ -83,10 +103,19 @@ export default function ContactForm() {
 
     startTransition(async () => {
       try {
+        // Sanitize all input data before sending
+        const sanitizedData = {
+          name: sanitizeInput(formData.name),
+          email: sanitizeInput(formData.email),
+          subject: sanitizeInput(formData.subject),
+          message: sanitizeInput(formData.message),
+          phone: sanitizeInput(formData.phone),
+        };
+
         const response = await fetch("/api/contact/send", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(sanitizedData),
         });
 
         if (!response.ok) {
@@ -94,7 +123,7 @@ export default function ContactForm() {
           throw new Error(error.message || "Failed to send message");
         }
 
-        console.log("Contact form submitted:", formData.email);
+        console.log("Contact form submitted:", sanitizedData.email);
         setSubmitStatus("success");
         setFormData({
           name: "",

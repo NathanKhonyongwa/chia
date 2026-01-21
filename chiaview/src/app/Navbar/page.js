@@ -13,6 +13,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
@@ -38,7 +39,7 @@ export default function Navbar() {
       links.splice(links.length - 1, 0, { href: "/Admin/Login", label: "🔐 Admin", isAdmin: true });
     } else {
       // Add admin portal link if user is authenticated
-      links.splice(links.length - 1, 0, { href: "/Admin", label: "🔐 Admin Portal", isAdmin: true });
+      links.splice(links.length - 1, 0, { href: "/Admin", label: "🔐 Admin", isAdmin: true });
     }
     
     return links;
@@ -93,12 +94,13 @@ export default function Navbar() {
             className="block transition-transform duration-300 hover:scale-105"
             aria-label="Go to home page"
           >
-            <img
+            <Image
               src="/logo.png"
               alt="Chia View Church Mission Logo"
               className="h-20 w-auto drop-shadow-lg"
               width={80}
               height={80}
+              priority={true}
             />
           </Link>
         </div>

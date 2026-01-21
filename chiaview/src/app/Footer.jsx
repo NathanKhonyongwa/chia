@@ -111,7 +111,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-blue-900 text-white" role="contentinfo">
+    <footer aria-label="Site Footer" className="bg-blue-900 text-white" role="contentinfo">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-6 py-16">
         <motion.div

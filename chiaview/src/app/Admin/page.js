@@ -6,6 +6,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/useToast";
+import AdminQuickLinks from "@/components/AdminQuickLinks";
+import AdminStats from "@/components/AdminStats";
 
 // Demo data for quick display
 const demoStats = [
@@ -87,8 +89,8 @@ export default function AdminDashboard() {
       <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-blue-200">Welcome, {admin.name}</p>
+            <h1 aria-label="Admin Dashboard" className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-blue-200">Welcome, {admin?.name || "Admin"}</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -104,6 +106,9 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <>
+          {/* Statistics Overview */}
+          <AdminStats />
+
           {/* Dashboard Overview */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -113,26 +118,7 @@ export default function AdminDashboard() {
             <h2 className="text-3xl font-bold text-white mb-8">Management Sections</h2>
             <p className="text-gray-400 mb-8">Click on a section below to manage your website content</p>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {adminSections.map((section, index) => (
-                <motion.a
-                  key={section.id}
-                  href={section.link}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                  className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-8 text-left hover:shadow-2xl transition cursor-pointer block"
-                >
-                  <div className={`text-5xl mb-4 bg-gradient-to-br ${section.color} w-16 h-16 rounded-lg flex items-center justify-center`}>
-                    {section.icon}
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">{section.title}</h3>
-                  <p className="text-gray-400">{section.description}</p>
-                  <span className="text-blue-400 mt-4 inline-block">Open →</span>
-                </motion.a>
-              ))}
-            </div>
+            <AdminQuickLinks />
           </motion.div>
 
           {/* Quick Stats */}
@@ -142,7 +128,7 @@ export default function AdminDashboard() {
             transition={{ delay: 0.5 }}
             className="mt-12"
           >
-            <h2 className="text-3xl font-bold text-white mb-8">Quick Stats</h2>
+            <h2 className="text-3xl font-bold text-white mb-8">Quick Links</h2>
             <div className="grid gap-6 md:grid-cols-4">
               {demoStats.map((stat, index) => (
                 <motion.a

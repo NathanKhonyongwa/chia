@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/useToast";
+import { useDatabase } from "@/hooks/useDatabase";
 
 const STORAGE_KEY = "chiaview_blog_posts";
 
@@ -12,8 +13,9 @@ export default function BlogManagement() {
   const router = useRouter();
   const { admin } = useAuth();
   const { showToast } = useToast();
+  const { data: postsRaw, saveData: savePosts, loading, error } = useDatabase(STORAGE_KEY, []);
+  const posts = Array.isArray(postsRaw) ? postsRaw : [];
 
-  const [posts, setPosts] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     category: "Testimonies",
@@ -22,31 +24,13 @@ export default function BlogManagement() {
   });
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  // Load posts from localStorage
+  // Authenticate user
   useEffect(() => {
     if (!admin) {
       router.push("/Admin/Login");
-      return;
     }
-
-    const savedPosts = localStorage.getItem(STORAGE_KEY);
-    if (savedPosts) {
-      try {
-        setPosts(JSON.parse(savedPosts));
-      } catch (error) {
-        console.error("Error loading posts:", error);
-      }
-    }
-    setLoading(false);
   }, [admin, router]);
-
-  // Save posts to localStorage
-  const savePosts = (newPosts) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newPosts));
-    setPosts(newPosts);
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
