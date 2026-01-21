@@ -16,6 +16,18 @@ class DatabaseService {
     this.provider = provider;
   }
 
+  async supabaseRequest(path, options = {}) {
+    const res = await fetch(path, {
+      headers: { "Content-Type": "application/json" },
+      ...options,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || err.message || "Supabase request failed");
+    }
+    return res.json();
+  }
+
   /**
    * Save data to database
    * @param {string} key - Data collection key
@@ -34,6 +46,12 @@ class DatabaseService {
           body: JSON.stringify(data),
         });
         return response.ok;
+      } else if (this.provider === "supabase") {
+        const json = await this.supabaseRequest(`/api/supabase/data/${key}`, {
+          method: "POST",
+          body: JSON.stringify({ data }),
+        });
+        return json?.success === true;
       }
     } catch (error) {
       console.error(`Error saving data to ${key}:`, error);
@@ -58,6 +76,9 @@ class DatabaseService {
           return await response.json();
         }
         return defaultValue;
+      } else if (this.provider === "supabase") {
+        const json = await this.supabaseRequest(`/api/supabase/data/${key}`);
+        return json?.data ?? defaultValue;
       }
     } catch (error) {
       console.error(`Error loading data from ${key}:`, error);
@@ -80,6 +101,11 @@ class DatabaseService {
           method: "DELETE",
         });
         return response.ok;
+      } else if (this.provider === "supabase") {
+        const json = await this.supabaseRequest(`/api/supabase/data/${key}`, {
+          method: "DELETE",
+        });
+        return json?.success === true;
       }
     } catch (error) {
       console.error(`Error deleting data from ${key}:`, error);
@@ -244,8 +270,8 @@ class DatabaseService {
   }
 }
 
-// Create singleton instance
-const db = new DatabaseService(process.env.NEXT_PUBLIC_DB_PROVIDER || "localStorage");
+// Create singleton instance (default to Supabase; fallback to localStorage)
+const db = new DatabaseService(process.env.NEXT_PUBLIC_DB_PROVIDER || "supabase");
 
 export default db;
 export { DatabaseService };
