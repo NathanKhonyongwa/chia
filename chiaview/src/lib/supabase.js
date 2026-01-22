@@ -9,7 +9,10 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn("Supabase environment variables not configured");
+  // Only warn in development, not during build
+  if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+    console.warn("Supabase environment variables not configured");
+  }
 }
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);

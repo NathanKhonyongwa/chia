@@ -9,7 +9,10 @@ import Stripe from 'stripe';
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
 if (!stripeSecretKey) {
-  console.error('Stripe secret key not configured. Set STRIPE_SECRET_KEY');
+  // Only warn in development, not during build
+  if (process.env.NODE_ENV === 'development') {
+    console.error('Stripe secret key not configured. Set STRIPE_SECRET_KEY');
+  }
 }
 
 const stripe = stripeSecretKey ? new Stripe(stripeSecretKey) : null;

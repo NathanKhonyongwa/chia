@@ -9,7 +9,10 @@ import { loadStripe } from '@stripe/stripe-js';
 const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 
 if (!stripePublicKey) {
-  console.warn('Stripe public key not configured. Set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY');
+  // Only warn in development, not during build
+  if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+    console.warn('Stripe public key not configured. Set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY');
+  }
 }
 
 // Initialize Stripe
