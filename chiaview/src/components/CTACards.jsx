@@ -85,7 +85,7 @@ const cardVariants = {
 export default function CTACards() {
   return (
     <section
-      className="py-20 px-6 bg-gradient-to-br from-gray-50 to-white"
+      className="py-20 px-6 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900"
       aria-label="Call to action section"
     >
       <div className="mx-auto max-w-7xl">
@@ -96,10 +96,10 @@ export default function CTACards() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             How You Can Help
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             There are many ways to be part of our mission and make a difference
           </p>
         </motion.div>
@@ -130,16 +130,16 @@ export default function CTACards() {
                   </motion.div>
 
                   {/* Content */}
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-gray-700 transition">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition">
                     {card.title}
                   </h3>
-                  <p className="text-gray-700 mb-4 group-hover:text-gray-600 transition">
+                  <p className="text-gray-700 dark:text-gray-300 mb-4 group-hover:text-gray-600 dark:group-hover:text-gray-400 transition">
                     {card.description}
                   </p>
 
                   {/* Learn More Link */}
                   <motion.div
-                    className="text-gray-600 font-semibold flex items-center gap-2 group-hover:gap-3 transition-all"
+                    className="text-gray-600 dark:text-gray-400 font-semibold flex items-center gap-2 group-hover:gap-3 transition-all"
                     whileHover={{ x: 5 }}
                   >
                     Learn More →

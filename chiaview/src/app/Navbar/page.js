@@ -15,6 +15,8 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import ThemeToggle from "@/components/ThemeToggle";
+import SearchBar from "@/components/SearchBar";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -88,7 +90,11 @@ export default function Navbar() {
         </ul>
 
         {/* Logo on the right */}
-        <div className="flex-shrink-0 ml-auto">
+        <div className="flex-shrink-0 ml-auto flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2">
+            <SearchBar />
+            <ThemeToggle />
+          </div>
           <Link
             href="/"
             className="block transition-transform duration-300 hover:scale-105"
@@ -106,7 +112,9 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center">
+        <div className="md:hidden flex items-center gap-2">
+          <SearchBar />
+          <ThemeToggle />
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="text-white focus:outline-none focus:ring-2 focus:ring-blue-300 rounded p-2 transition-transform duration-200 hover:scale-110"

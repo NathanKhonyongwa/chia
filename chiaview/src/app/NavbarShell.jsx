@@ -9,7 +9,7 @@ export default function NavbarShell({ children }) {
     <>
       <Navbar aria-label="Main Navigation" />
       <div className="flex flex-col min-h-screen">
-        <main className="pt-24 md:pt-28 flex-grow w-full">{children}</main>
+        <main id="main-content" className="pt-24 md:pt-28 flex-grow w-full">{children}</main>
         <Footer />
       </div>
     </>
