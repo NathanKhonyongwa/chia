@@ -6,7 +6,7 @@
  */
 
 import { cookies } from "next/headers";
-import { requireSupabaseConfigured, supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 const COOKIE_NAME = "chiaview_admin_token";
 const SESSION_COOKIE_NAME = "chiaview_admin_session";
@@ -69,7 +69,9 @@ export async function POST(request) {
     }
 
     // Supabase authentication
-    requireSupabaseConfigured();
+    if (!isSupabaseConfigured) {
+      return Response.json({ error: "Authentication service not configured" }, { status: 500 });
+    }
 
     if (!isEmailAllowed(email)) {
       return Response.json({ error: "Not authorized" }, { status: 403 });

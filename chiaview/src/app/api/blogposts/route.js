@@ -4,7 +4,7 @@
  * POST /api/blogposts
  */
 
-import { requireSupabaseConfigured, supabase } from "@/lib/supabase";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 const SELECT_COLUMNS =
   "id, title, category, excerpt, content, image_url, featured, published, created_at, updated_at";
@@ -18,7 +18,10 @@ function sanitizeText(value) {
 
 export async function GET(request) {
   try {
-    requireSupabaseConfigured();
+    if (!isSupabaseConfigured) {
+      return Response.json({ error: "Database not configured" }, { status: 500 });
+    }
+
     const url = new URL(request.url);
     const query = (url.searchParams.get("query") || "").trim();
     const category = (url.searchParams.get("category") || "").trim();
@@ -68,7 +71,10 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    requireSupabaseConfigured();
+    if (!isSupabaseConfigured) {
+      return Response.json({ error: "Database not configured" }, { status: 500 });
+    }
+
     const body = await request.json();
     const {
       title,

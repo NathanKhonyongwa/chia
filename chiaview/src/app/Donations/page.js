@@ -208,6 +208,13 @@ export default function Donations() {
           </Elements>
         </div>
       </section>
+
+      {/* Hero Section with Background Animation */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Animation */}
+        <motion.div
+          className="absolute top-20 left-20 w-96 h-96 bg-purple-500 rounded-full opacity-5 blur-3xl"
+          animate={{ x: [0, 30, 0], y: [0, -30, 0] }}
           transition={{ duration: 10, repeat: Infinity }}
         />
         <motion.div
@@ -408,114 +415,6 @@ export default function Donations() {
             <a href="/#contact" className="inline-block bg-white text-purple-900 font-bold px-8 py-3 rounded-full hover:bg-purple-50 transition">
               Get in Touch
             </a>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Donation Form */}
-      <section className="py-20 px-6 bg-gradient-to-b from-purple-50 to-white">
-        <div className="mx-auto max-w-2xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-white rounded-3xl p-10 shadow-xl border border-purple-200"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-2">
-              Make a Donation
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Support our mission with a secure donation
-            </p>
-
-            <form onSubmit={handleDonate} className="space-y-6">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-3">
-                  Select Amount *
-                </label>
-                <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-                  {[10, 25, 50, 100, 250, 500, 1000, "Custom"].map((amount) => (
-                    <motion.button
-                      key={amount}
-                      whileHover={{ scale: 1.05 }}
-                      type="button"
-                      onClick={() => {
-                        if (amount !== "Custom") {
-                          setSelectedAmount(amount.toString());
-                        }
-                      }}
-                      className={`py-3 px-4 rounded-lg font-bold transition ${
-                        selectedAmount === amount.toString()
-                          ? "bg-purple-600 text-white"
-                          : "bg-gray-100 text-gray-900 hover:bg-purple-100"
-                      }`}
-                    >
-                      {amount === "Custom" ? "Custom" : `$${amount}`}
-                    </motion.button>
-                  ))}
-                </div>
-                {selectedAmount === "Custom" && (
-                  <input
-                    type="number"
-                    placeholder="Enter custom amount"
-                    value={selectedAmount}
-                    onChange={(e) => setSelectedAmount(e.target.value)}
-                    className="w-full mt-4 px-4 py-3 rounded-lg border-2 border-purple-200 focus:border-purple-600 focus:outline-none"
-                  />
-                )}
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={donorName}
-                    onChange={(e) => setDonorName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border-2 border-purple-200 focus:border-purple-600 focus:outline-none transition"
-                    placeholder="Your name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border-2 border-purple-200 focus:border-purple-600 focus:outline-none transition"
-                    placeholder="your@email.com"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg">
-                <input
-                  type="checkbox"
-                  id="receipt"
-                  className="w-4 h-4 accent-purple-600"
-                />
-                <label htmlFor="receipt" className="text-sm text-gray-700">
-                  Send me a donation receipt
-                </label>
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 rounded-lg hover:shadow-lg transition duration-300"
-              >
-                Donate Now
-              </motion.button>
-
-              <p className="text-xs text-gray-500 text-center">
-                💳 All donations are secure and confidential
-              </p>
-            </form>
           </motion.div>
         </div>
       </section>

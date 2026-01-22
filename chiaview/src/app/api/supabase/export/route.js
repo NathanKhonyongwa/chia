@@ -3,11 +3,14 @@
  * GET /api/supabase/export - Export all data
  */
 
-import { requireSupabaseConfigured, supabase } from "@/lib/supabase";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 export async function GET(request) {
   try {
-    requireSupabaseConfigured();
+    if (!isSupabaseConfigured) {
+      return Response.json({ error: "Database not configured" }, { status: 500 });
+    }
+
     // Fetch all data from data_store table
     const { data, error } = await supabase.from("data_store").select("*");
 

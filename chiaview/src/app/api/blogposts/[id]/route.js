@@ -5,7 +5,7 @@
  * DELETE /api/blogposts/[id]
  */
 
-import { requireSupabaseConfigured, supabase } from "@/lib/supabase";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 const SELECT_COLUMNS =
   "id, title, category, excerpt, content, image_url, featured, published, created_at, updated_at";
@@ -18,7 +18,10 @@ function sanitizeText(value) {
 
 export async function GET(request, { params }) {
   try {
-    requireSupabaseConfigured();
+    if (!isSupabaseConfigured) {
+      return Response.json({ error: "Database not configured" }, { status: 500 });
+    }
+
     const { id } = params;
     const { data, error } = await supabase
       .from("blog_posts")
@@ -37,7 +40,10 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
-    requireSupabaseConfigured();
+    if (!isSupabaseConfigured) {
+      return Response.json({ error: "Database not configured" }, { status: 500 });
+    }
+
     const { id } = params;
     const body = await request.json();
     const {
@@ -79,7 +85,10 @@ export async function PATCH(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    requireSupabaseConfigured();
+    if (!isSupabaseConfigured) {
+      return Response.json({ error: "Database not configured" }, { status: 500 });
+    }
+
     const { id } = params;
     const { error } = await supabase.from("blog_posts").delete().eq("id", id);
     if (error) throw error;

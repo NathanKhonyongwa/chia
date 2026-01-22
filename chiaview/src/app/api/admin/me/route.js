@@ -4,7 +4,7 @@
  */
 
 import { cookies } from "next/headers";
-import { requireSupabaseConfigured, supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 const COOKIE_NAME = "chiaview_admin_token";
 const DB_PROVIDER = process.env.NEXT_PUBLIC_DB_PROVIDER || "supabase";
@@ -43,7 +43,10 @@ export async function GET() {
     }
 
     // Supabase authentication
-    requireSupabaseConfigured();
+    if (!isSupabaseConfigured) {
+      return Response.json({ success: true, admin: null });
+    }
+
     const jar = await cookies();
     const token = jar.get(COOKIE_NAME)?.value;
     if (!token) {

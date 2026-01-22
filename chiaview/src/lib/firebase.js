@@ -17,12 +17,29 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const isFirebaseConfigured = !!(
+  firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
+  firebaseConfig.databaseURL &&
+  firebaseConfig.projectId
+);
 
-// Export instances
-export const database = getDatabase(app);
-export const auth = getAuth(app);
+let app = null;
+let database = null;
+let auth = null;
+
+if (isFirebaseConfigured) {
+  try {
+    app = initializeApp(firebaseConfig);
+    database = getDatabase(app);
+    auth = getAuth(app);
+  } catch (error) {
+    console.warn("Firebase initialization failed:", error.message);
+  }
+}
+
+// Export instances (will be null if not configured)
+export { database, auth, isFirebaseConfigured };
 
 /**
  * Database Helper Functions

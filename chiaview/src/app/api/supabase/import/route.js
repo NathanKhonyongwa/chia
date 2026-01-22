@@ -3,11 +3,14 @@
  * POST /api/supabase/import - Import/restore data
  */
 
-import { requireSupabaseConfigured, supabase } from "@/lib/supabase";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 export async function POST(request) {
   try {
-    requireSupabaseConfigured();
+    if (!isSupabaseConfigured) {
+      return Response.json({ error: "Database not configured" }, { status: 500 });
+    }
+
     const body = await request.json();
     const { backup } = body;
 

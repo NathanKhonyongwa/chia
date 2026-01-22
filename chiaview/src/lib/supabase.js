@@ -14,15 +14,17 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 
-export function requireSupabaseConfigured() {
-  if (!isSupabaseConfigured) {
-    throw new Error(
-      "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
-    );
+let supabase = null;
+
+if (isSupabaseConfigured) {
+  try {
+    supabase = createClient(supabaseUrl, supabaseAnonKey);
+  } catch (error) {
+    console.warn("Supabase initialization failed:", error.message);
   }
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export { supabase };
 
 /**
  * Database Helper Functions
