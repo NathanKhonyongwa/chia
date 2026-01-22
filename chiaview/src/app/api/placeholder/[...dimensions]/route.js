@@ -1,0 +1,43 @@
+/**
+ * Placeholder Image API
+ * GET /api/placeholder/[width]/[height]
+ *
+ * Generates a simple SVG placeholder image
+ */
+
+export async function GET(request, { params }) {
+  try {
+    const dimensions = params.dimensions;
+
+    if (!dimensions || dimensions.length !== 2) {
+      return new Response("Invalid dimensions", { status: 400 });
+    }
+
+    const width = parseInt(dimensions[0]);
+    const height = parseInt(dimensions[1]);
+
+    if (isNaN(width) || isNaN(height) || width <= 0 || height <= 0 || width > 2000 || height > 2000) {
+      return new Response("Invalid dimensions", { status: 400 });
+    }
+
+    // Generate SVG placeholder
+    const svg = `
+      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#f3f4f6"/>
+        <rect x="10" y="10" width="${width - 20}" height="${height - 20}" fill="#e5e7eb" stroke="#d1d5db" stroke-width="1"/>
+        <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="Arial, sans-serif" font-size="${Math.min(width, height) / 10}" fill="#6b7280">
+          ${width} × ${height}
+        </text>
+      </svg>
+    `.trim();
+
+    return new Response(svg, {
+      headers: {
+        "Content-Type": "image/svg+xml",
+        "Cache-Control": "public, max-age=31536000", // Cache for 1 year
+      },
+    });
+  } catch (error) {
+    return new Response("Error generating placeholder", { status: 500 });
+  }
+}

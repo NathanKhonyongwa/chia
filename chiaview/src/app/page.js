@@ -23,7 +23,6 @@ import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import CTACards from "@/components/CTACards";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import PrayerRequestForm from "@/components/PrayerRequestForm";
-import Image from "next/image";
 
 /**
  * Hero slides data with inspiring messages
@@ -123,14 +122,12 @@ export default function Home() {
                 role="img"
                 aria-label={`Slide ${slide.id}: ${slide.title}`}
               >
-                <Image
+                <img
                   src={slide.image}
                   alt={`Hero image for ${slide.title}`}
-                  fill
-                  className="object-cover"
-                  priority={slide.id === 1} // Only prioritize the first image
-                  sizes="100vw"
-                  quality={85}
+                  className="w-full h-full object-cover"
+                  loading={slide.id === 1 ? "eager" : "lazy"}
+                  decoding="async"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/60" aria-hidden="true"></div>
                 <div className="relative text-center px-6">

@@ -32,6 +32,7 @@ const geistMono = Geist_Mono({
  * Used by search engines and social media platforms
  */
 export const metadata = {
+  metadataBase: new URL('http://localhost:3000'),
   title: "Chia View Church Mission - Spreading Hope & God's Love",
   description:
     "Chia View Church Mission serves the community through faith-driven initiatives, spiritual guidance, and compassionate outreach. Join us in spreading hope and transforming lives.",
@@ -39,7 +40,7 @@ export const metadata = {
   openGraph: {
     title: "Chia View Church Mission",
     description: "Spreading Hope & God's Love through Faith-Driven Initiatives",
-    url: "https://chiamissionview.org",
+    url: "http://localhost:3000",
     type: "website",
     images: [
       {
@@ -59,7 +60,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {/* Skip to main content link */}
         <a

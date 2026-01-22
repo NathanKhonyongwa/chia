@@ -3,8 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useToast } from "@/hooks/useToast";
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import DonationForm from "@/components/DonationForm";
+import { donationOptions, donationCategories } from "@/lib/stripe";
+
+// Initialize Stripe
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 const budgetBreakdown = [
   {
@@ -124,23 +130,6 @@ const testimonials = [
 ];
 
 export default function Donations() {
-  const [selectedAmount, setSelectedAmount] = useState("");
-  const [donorName, setDonorName] = useState("");
-  const [email, setEmail] = useState("");
-  const { showToast } = useToast();
-
-  const handleDonate = (e) => {
-    e.preventDefault();
-    if (!selectedAmount || !donorName || !email) {
-      showToast("Please fill in all required fields", "error");
-      return;
-    }
-    showToast("Thank you for your generous gift! God bless you abundantly.", "success");
-    setSelectedAmount("");
-    setDonorName("");
-    setEmail("");
-  };
-
   return (
     <>
       {/* Hero Section */}
@@ -148,6 +137,77 @@ export default function Donations() {
         <motion.div
           className="absolute top-20 left-10 w-64 h-64 bg-purple-400 rounded-full opacity-10 blur-3xl"
           animate={{ x: [0, 50, 0], y: [0, -50, 0] }}
+          transition={{ duration: 20, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute bottom-20 right-10 w-48 h-48 bg-pink-400 rounded-full opacity-10 blur-3xl"
+          animate={{ x: [0, -30, 0], y: [0, 30, 0] }}
+          transition={{ duration: 15, repeat: Infinity }}
+        />
+
+        <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
+          <motion.h1
+            className="text-5xl md:text-7xl font-bold mb-6"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            Your Gift Changes Lives
+          </motion.h1>
+          <motion.p
+            className="text-xl md:text-2xl mb-8 text-purple-100"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            Join us in spreading hope and God's love through generous giving
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="#donate"
+                className="bg-white text-purple-900 font-semibold py-4 px-8 rounded-full hover:bg-gray-100 transition-colors shadow-lg"
+              >
+                Give Now
+              </a>
+              <Link
+                href="#impact"
+                className="border-2 border-white text-white font-semibold py-4 px-8 rounded-full hover:bg-white hover:text-purple-900 transition-colors"
+              >
+                See Impact
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Donation Form Section */}
+      <section id="donate" className="py-20 px-6 bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Make Your Donation
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Every contribution, no matter the size, makes a meaningful difference in our community.
+              All donations are tax-deductible and securely processed.
+            </p>
+          </motion.div>
+
+          <Elements stripe={stripePromise}>
+            <DonationForm />
+          </Elements>
+        </div>
+      </section>
           transition={{ duration: 10, repeat: Infinity }}
         />
         <motion.div

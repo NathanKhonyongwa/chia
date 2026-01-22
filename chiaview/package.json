@@ -10,16 +10,23 @@
     "smoke:admin": "node scripts/smoke-admin.mjs http://localhost:3000"
   },
   "dependencies": {
+    "@fullcalendar/daygrid": "^6.1.20",
+    "@fullcalendar/interaction": "^6.1.20",
+    "@fullcalendar/react": "^6.1.20",
+    "@fullcalendar/timegrid": "^6.1.20",
     "@heroicons/react": "^2.2.0",
+    "@stripe/stripe-js": "^8.6.3",
     "@supabase/supabase-js": "^2.91.0",
     "firebase": "^11.0.2",
     "framer-motion": "^12.26.1",
     "leaflet": "^1.9.4",
     "next": "16.1.1",
     "react": "19.2.3",
+    "react-calendar": "^6.0.0",
     "react-dom": "19.2.3",
     "react-icons": "^5.5.0",
     "react-leaflet": "^5.0.0",
+    "stripe": "^20.2.0",
     "swiper": "^12.0.3"
   },
   "devDependencies": {

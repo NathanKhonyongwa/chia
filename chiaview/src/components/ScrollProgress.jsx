@@ -34,12 +34,11 @@ export default function ScrollProgress() {
       className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-600 z-50 origin-left"
       style={{ scaleX }}
       initial={{ scaleX: 0 }}
-      animate={{ scaleX: isVisible ? scaleX : 0 }}
       transition={{ duration: 0.3 }}
       role="progressbar"
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-valuenow={Math.round(scrollYProgress.get() * 100)}
+      aria-valuenow={0}
       aria-label="Page scroll progress"
     />
   );
