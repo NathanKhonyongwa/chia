@@ -1,6 +1,6 @@
 /**
  * Supabase Configuration
- * Initialize Supabase client and export instances
+ * Safe initialization + guarded helpers
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -8,97 +8,97 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  // Only warn in development, not during build
-  if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
-    console.warn("Supabase environment variables not configured");
-  }
-}
-
-export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
+export const isSupabaseConfigured =
+  Boolean(supabaseUrl) && Boolean(supabaseAnonKey);
 
 let supabase = null;
 
 if (isSupabaseConfigured) {
-  try {
-    supabase = createClient(supabaseUrl, supabaseAnonKey);
-  } catch (error) {
-    console.warn("Supabase initialization failed:", error.message);
+  supabase = createClient(supabaseUrl, supabaseAnonKey);
+} else {
+  if (process.env.NODE_ENV === "development") {
+    console.warn("⚠️ Supabase is NOT configured");
   }
 }
 
 export { supabase };
 
-/**
- * Database Helper Functions
- */
+/* ------------------------------------------------------------------ */
+/* Guards                                                             */
+/* ------------------------------------------------------------------ */
+
+function ensureSupabase() {
+  if (!supabase) {
+    throw new Error(
+      "Supabase is not initialized. Check NEXT_PUBLIC_SUPABASE_* env vars."
+    );
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Database Helpers                                                   */
+/* ------------------------------------------------------------------ */
 
 export async function saveToSupabase(table, data, id = null) {
   try {
-    if (id) {
-      // Update existing record
-      const { data: result, error } = await supabase
-        .from(table)
-        .update(data)
-        .eq("id", id)
-        .select();
+    ensureSupabase();
 
-      if (error) throw error;
-      return result;
-    } else {
-      // Insert new record
-      const { data: result, error } = await supabase
-        .from(table)
-        .insert([data])
-        .select();
+    const query = id
+      ? supabase.from(table).update(data).eq("id", id)
+      : supabase.from(table).insert(data);
 
-      if (error) throw error;
-      return result;
-    }
+    const { data: result, error } = await query.select();
+
+    if (error) throw error;
+    return result;
   } catch (error) {
-    console.error("Error saving to Supabase:", error);
+    console.error("❌ saveToSupabase:", error.message);
     return null;
   }
 }
 
-export async function loadFromSupabase(table, filters = null) {
+export async function loadFromSupabase(table, filters = {}) {
   try {
+    ensureSupabase();
+
     let query = supabase.from(table).select("*");
 
-    if (filters) {
-      for (const [key, value] of Object.entries(filters)) {
-        query = query.eq(key, value);
-      }
+    for (const [key, value] of Object.entries(filters)) {
+      query = query.eq(key, value);
     }
 
     const { data, error } = await query;
-
     if (error) throw error;
+
     return data;
   } catch (error) {
-    console.error("Error loading from Supabase:", error);
+    console.error("❌ loadFromSupabase:", error.message);
     return null;
   }
 }
 
 export async function deleteFromSupabase(table, id) {
   try {
-    const { error } = await supabase.from(table).delete().eq("id", id);
+    ensureSupabase();
 
+    const { error } = await supabase.from(table).delete().eq("id", id);
     if (error) throw error;
+
     return true;
   } catch (error) {
-    console.error("Error deleting from Supabase:", error);
+    console.error("❌ deleteFromSupabase:", error.message);
     return false;
   }
 }
 
-/**
- * Batch Operations
- */
+/* ------------------------------------------------------------------ */
+/* Batch Operations                                                   */
+/* ------------------------------------------------------------------ */
 
 export async function batchInsertToSupabase(table, records) {
   try {
+    ensureSupabase();
+
     const { data, error } = await supabase
       .from(table)
       .insert(records)
@@ -107,19 +107,21 @@ export async function batchInsertToSupabase(table, records) {
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error("Error batch inserting to Supabase:", error);
+    console.error("❌ batchInsert:", error.message);
     return null;
   }
 }
 
 export async function batchDeleteFromSupabase(table, ids) {
   try {
-    const { error } = await supabase.from(table).delete().in("id", ids);
+    ensureSupabase();
 
+    const { error } = await supabase.from(table).delete().in("id", ids);
     if (error) throw error;
+
     return true;
   } catch (error) {
-    console.error("Error batch deleting from Supabase:", error);
+    console.error("❌ batchDelete:", error.message);
     return false;
   }
 }

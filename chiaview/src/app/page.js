@@ -1,13 +1,3 @@
-/**
- * Home - Main landing page with inspiring hero and purpose-driven sections
- * Features:
- * - Swiper carousel with fade effect
- * - Inspiring sections about faith and community
- * - Call-to-action buttons linking to mission and contact
- * - Contact form integration
- * - Accessibility features throughout
- */
-
 "use client";
 
 import Link from "next/link";
@@ -24,9 +14,6 @@ import CTACards from "@/components/CTACards";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import PrayerRequestForm from "@/components/PrayerRequestForm";
 
-/**
- * Hero slides data with inspiring messages
- */
 const heroSlides = [
   {
     id: 1,
@@ -54,9 +41,6 @@ const heroSlides = [
   }
 ];
 
-/**
- * Core values showcasing what we believe in
- */
 const coreValues = [
   {
     title: "Faith",
@@ -80,9 +64,6 @@ const coreValues = [
   }
 ];
 
-/**
- * What we do - Brief overview of our work
- */
 const whatWeDo = [
   {
     title: "Community Outreach",
@@ -101,195 +82,211 @@ const whatWeDo = [
 export default function Home() {
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative w-full dark:bg-gray-900" aria-label="Hero section">
-        <Swiper
-          modules={[Autoplay, Pagination, Navigation, EffectFade]}
-          spaceBetween={0}
-          slidesPerView={1}
-          loop={true}
-          effect="fade"
-          autoplay={{ delay: 5000, disableOnInteraction: false }}
-          pagination={{ clickable: true }}
-          navigation
-          className="h-screen"
-          aria-label="Hero carousel"
-        >
-          {heroSlides.map((slide) => (
-            <SwiperSlide key={slide.id}>
-              <div
-                className="w-full h-screen bg-cover bg-center relative flex items-center justify-center"
-                role="img"
-                aria-label={`Slide ${slide.id}: ${slide.title}`}
-              >
-                <img
-                  src={slide.image}
-                  alt={`Hero image for ${slide.title}`}
-                  className="w-full h-full object-cover"
-                  loading={slide.id === 1 ? "eager" : "lazy"}
-                  decoding="async"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/60" aria-hidden="true"></div>
-                <div className="relative text-center px-6">
-                  <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white mb-6 animate-fadeIn">
-                    {slide.title}
-                  </h1>
-                  <p className="text-lg sm:text-xl md:text-2xl text-white mb-8 animate-fadeIn delay-200">
-                    {slide.description}
-                  </p>
-                  <Link
-                    href={slide.linkHref}
-                    className="inline-block bg-blue-800 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300 animate-fadeIn delay-400"
-                    aria-label={`${slide.linkText} - ${slide.title}`}
-                  >
-                    {slide.linkText}
-                  </Link>
+      {/* 🖼️ Hero Section - Fixed Swiper Layout */}
+      <section className="relative min-h-screen w-full overflow-hidden" aria-label="Hero section">
+        <div className="absolute inset-0">
+          <Swiper
+            modules={[Autoplay, Pagination, Navigation, EffectFade]}
+            spaceBetween={0}
+            slidesPerView={1}
+            loop={true}
+            effect="fade"
+            autoplay={{ delay: 5000, disableOnInteraction: false }}
+            pagination={{ 
+              clickable: true,
+              dynamicBullets: true,
+              el: '.hero-pagination'
+            }}
+            className="h-full w-full"
+          >
+            {heroSlides.map((slide) => (
+              <SwiperSlide key={slide.id}>
+                <div 
+                  className="h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center relative"
+                  style={{ backgroundImage: `url(${slide.image})` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/60" />
+                  <div className="relative z-10 text-center px-4 py-12 max-w-4xl mx-auto w-full">
+                    <motion.h1 
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8 }}
+                      className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white mb-6 leading-tight"
+                    >
+                      {slide.title}
+                    </motion.h1>
+                    <motion.p 
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: 0.2 }}
+                      className="text-lg sm:text-xl lg:text-2xl text-blue-100 mb-10 max-w-2xl mx-auto leading-relaxed"
+                    >
+                      {slide.description}
+                    </motion.p>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: 0.4 }}
+                    >
+                      <Link
+                        href={slide.linkHref}
+                        className="inline-flex items-center bg-white/90 hover:bg-white text-blue-900 font-bold py-4 px-10 rounded-full shadow-2xl hover:shadow-3xl backdrop-blur-md border-2 border-white/20 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 text-lg"
+                        aria-label={`${slide.linkText} - ${slide.title}`}
+                      >
+                        {slide.linkText}
+                        <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                      </Link>
+                    </motion.div>
+                  </div>
                 </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+        {/* Custom Pagination */}
+        <div className="hero-pagination absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex space-x-2" />
       </section>
 
-      {/* Core Values Section */}
-      <section className="py-20 px-6 bg-white dark:bg-gray-800" aria-label="Our core values">
-        <div className="max-w-6xl mx-auto">
+      {/* 🎯 Core Values Section */}
+      <section className="py-24 lg:py-32 px-6 lg:px-12 bg-gradient-to-b from-slate-50 to-white" aria-label="Our core values">
+        <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            transition={{ duration: 0.8 }}
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent mb-6">
               Our Core Values
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               These principles guide everything we do as we serve our community and spread God's love
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
             {coreValues.map((value, index) => (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
+                key={value.title}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300"
+                className="group bg-white/80 backdrop-blur-sm p-10 rounded-3xl shadow-xl hover:shadow-2xl border border-blue-50 hover:border-blue-100 hover:-translate-y-3 transition-all duration-500 cursor-pointer"
               >
-                <div className="text-5xl mb-4">{value.icon}</div>
-                <h3 className="text-2xl font-bold text-blue-900 dark:text-blue-100 mb-3">{value.title}</h3>
-                <p className="text-gray-700 dark:text-gray-300">{value.description}</p>
+                <div className="text-6xl lg:text-7xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                  {value.icon}
+                </div>
+                <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4 group-hover:text-blue-700 transition-colors">
+                  {value.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed text-lg">{value.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* What We Do Section */}
-      <section className="py-20 px-6 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900" aria-label="What we do">
-        <div className="max-w-6xl mx-auto">
+      {/* 💼 What We Do Section */}
+      <section className="py-24 lg:py-32 px-6 lg:px-12 bg-white" aria-label="What we do">
+        <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            transition={{ duration: 0.8 }}
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent mb-6">
               What We Do
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Through faith and dedication, we make a tangible difference in our communities
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
             {whatWeDo.map((item, index) => (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                key={item.title}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.15 }}
-                className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border-l-4 border-blue-800 hover:shadow-2xl transition duration-300"
+                className="group bg-gradient-to-br from-white to-blue-50 p-12 rounded-3xl shadow-lg hover:shadow-2xl border-l-8 border-blue-500 hover:-translate-y-4 transition-all duration-500 cursor-pointer hover:bg-blue-50"
               >
-                <h3 className="text-2xl font-bold text-blue-900 dark:text-blue-100 mb-4">{item.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{item.description}</p>
+                <h3 className="text-3xl font-bold text-gray-900 mb-6 group-hover:text-blue-700 transition-colors">
+                  {item.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed text-lg">{item.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Testimonials, CTA, Newsletter, Contact sections remain the same */}
       <TestimonialsCarousel />
-
-      {/* CTA Cards Section */}
       <CTACards />
-
-      {/* Newsletter Signup Section */}
-      <section className="py-20 px-6 bg-gray-50 dark:bg-gray-800">
+      
+      <section className="py-24 px-6 lg:px-12 bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="max-w-4xl mx-auto">
           <NewsletterSignup />
         </div>
       </section>
 
-      {/* Call to Action Section */}
-      <section className="py-20 px-6 bg-blue-900 text-white" aria-label="Call to action">
+      <section className="py-24 px-6 lg:px-12 bg-gradient-to-r from-blue-900 to-indigo-900 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            className="space-y-8"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               Ready to Make a Difference?
             </h2>
-            <p className="text-lg md:text-xl text-blue-100 mb-10 leading-relaxed">
-              Whether you want to learn more about our mission, volunteer your time, or simply connect with our community, 
-              we'd love to hear from you. Join us in spreading hope and God's love.
+            <p className="text-xl lg:text-2xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+              Join us in spreading hope and God's love throughout our community
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Link
                 href="/Mission"
-                className="bg-white text-blue-900 font-semibold py-3 px-10 rounded-full hover:bg-gray-100 transition duration-300 shadow-lg"
+                className="bg-white text-blue-900 font-bold py-5 px-12 rounded-3xl hover:bg-blue-50 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 text-xl"
               >
                 Explore Our Mission
               </Link>
-              <a
+              <Link
                 href="#contact"
-                className="bg-blue-700 text-white font-semibold py-3 px-10 rounded-full hover:bg-blue-600 transition duration-300 shadow-lg border-2 border-white"
+                className="bg-transparent border-2 border-white text-white font-bold py-5 px-12 rounded-3xl hover:bg-white hover:text-blue-900 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 text-xl backdrop-blur-sm"
               >
                 Get In Touch
-              </a>
+              </Link>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Contact Form Section */}
-      <section id="contact" className="py-20 px-6 bg-white dark:bg-gray-800" aria-label="Contact form">
-        <div className="max-w-6xl mx-auto">
+      <section id="contact" className="py-24 lg:py-32 px-6 lg:px-12 bg-white">
+        <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent mb-6">
               Connect With Us
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300">
-              Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Have questions? We'd love to hear from you.
             </p>
           </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
             <ContactForm />
             <PrayerRequestForm />
           </div>
