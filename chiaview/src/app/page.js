@@ -13,6 +13,7 @@ import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import CTACards from "@/components/CTACards";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import PrayerRequestForm from "@/components/PrayerRequestForm";
+import Footer from "./Footer/page";
 
 const heroSlides = [
   {
@@ -228,7 +229,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials, CTA, Newsletter, Contact sections remain the same */}
       <TestimonialsCarousel />
       <CTACards />
       
@@ -292,6 +292,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+      
+      {/* Fixed: Footer moved OUTSIDE the contact section, placed at the very end */}
+      <Footer />
     </>
   );
 }
