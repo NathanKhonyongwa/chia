@@ -93,7 +93,7 @@ export default function Home() {
             loop={true}
             effect="fade"
             autoplay={{ delay: 5000, disableOnInteraction: false }}
-            pagination={{ 
+            pagination={{
               clickable: true,
               dynamicBullets: true,
               el: '.hero-pagination'
@@ -102,13 +102,13 @@ export default function Home() {
           >
             {heroSlides.map((slide) => (
               <SwiperSlide key={slide.id}>
-                <div 
+                <div
                   className="h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center relative"
                   style={{ backgroundImage: `url(${slide.image})` }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/60" />
                   <div className="relative z-10 text-center px-4 py-12 max-w-4xl mx-auto w-full">
-                    <motion.h1 
+                    <motion.h1
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.8 }}
@@ -116,7 +116,7 @@ export default function Home() {
                     >
                       {slide.title}
                     </motion.h1>
-                    <motion.p 
+                    <motion.p
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.8, delay: 0.2 }}
@@ -124,7 +124,7 @@ export default function Home() {
                     >
                       {slide.description}
                     </motion.p>
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.8, delay: 0.4 }}
@@ -231,7 +231,7 @@ export default function Home() {
 
       <TestimonialsCarousel />
       <CTACards />
-      
+
       <section className="py-24 px-6 lg:px-12 bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="max-w-4xl mx-auto">
           <NewsletterSignup />
@@ -270,29 +270,41 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="contact" className="py-24 lg:py-32 px-6 lg:px-12 bg-white">
+      <section id="contact" className="py-16 lg:py-24 xl:py-32 px-4 sm:px-6 lg:px-12 bg-white">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-20"
+            className="text-center mb-12 sm:mb-16 lg:mb-20"
           >
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent mb-4 sm:mb-6 px-2">
               Connect With Us
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4 leading-relaxed">
               Have questions? We'd love to hear from you.
             </p>
           </motion.div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-            <ContactForm />
-            <PrayerRequestForm />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 xl:gap-20">
+            {/* Contact Form - Full width on mobile, side by side on desktop */}
+            <div className="w-full order-1 lg:order-none">
+              <ContactForm />
+            </div>
+
+            {/* Prayer Request Form - Full width on mobile, side by side on desktop */}
+            <div className="w-full order-2 lg:order-none">
+              <PrayerRequestForm />
+            </div>
+          </div>
+
+          {/* Optional: Add a subtle decorative element for larger screens */}
+          <div className="hidden lg:block relative mt-16">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent" />
           </div>
         </div>
       </section>
-      
+
       {/* Fixed: Footer moved OUTSIDE the contact section, placed at the very end */}
       <Footer />
     </>

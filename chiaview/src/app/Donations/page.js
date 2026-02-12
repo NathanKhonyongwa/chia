@@ -8,6 +8,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import DonationForm from "@/components/DonationForm";
 import { donationOptions, donationCategories } from "@/lib/stripe";
+import Footer from "../Footer/page";
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -490,6 +491,7 @@ export default function Donations() {
           </div>
         </motion.div>
       </section>
+      <Footer />
     </>
   );
 }
