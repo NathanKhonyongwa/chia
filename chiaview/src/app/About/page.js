@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import Footer from "../Footer/page";
 
 const values = [
 	{
@@ -308,13 +307,15 @@ export default function About() {
 								<motion.div
 									key={index}
 									variants={itemVariants}
-									className={`flex gap-8 items-center ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
-										}`}
+									className={`flex gap-8 items-center ${
+										index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+									}`}
 								>
 									{/* Content */}
 									<div
-										className={`flex-1 ${index % 2 === 0 ? "md:text-right" : "md:text-left"
-											}`}
+										className={`flex-1 ${
+											index % 2 === 0 ? "md:text-right" : "md:text-left"
+										}`}
 									>
 										<div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 shadow-lg border border-blue-200">
 											<div className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-2">
@@ -446,7 +447,6 @@ export default function About() {
 					</div>
 				</motion.div>
 			</section>
-			<Footer />
 		</>
 	);
 }

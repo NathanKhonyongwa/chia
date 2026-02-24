@@ -1,7 +1,17 @@
+/**
+ * Mission - Main mission and impact page
+ * Features:
+ * - Hero section with compelling headline
+ * - Core pillars showcasing ministry focus areas
+ * - Interactive map with mission centers (lazy-loaded for performance)
+ * - Impact statistics and progress highlights
+ * - Call-to-action sections
+ * - Accessibility features throughout
+ */
+
 "use client";
 
 import { Suspense } from "react";
-import Footer from "../Footer/page";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import dynamic from "next/dynamic";
@@ -312,7 +322,6 @@ export default function Mission() {
           Get Involved Today
         </a>
       </motion.div>
-      <Footer />
     </section>
   );
 }
