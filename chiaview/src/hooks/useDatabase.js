@@ -1,7 +1,12 @@
+/**
+ * useDatabase Hook
+ * React hook for database operations
+ */
+
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-
+import db from "@/lib/db";
 
 export function useDatabase(key, defaultValue = null) {
   const [data, setData] = useState(defaultValue);

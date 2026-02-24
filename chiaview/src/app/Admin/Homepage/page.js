@@ -1,0 +1,561 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/hooks/useToast";
+import Link from "next/link";
+
+
+const initialHomeContent = {
+  hero: {
+    title: "",
+    subtitle: "",
+    cta_button_text: "",
+    background_image_url: "",
+  },
+  coreValues: [],
+};
+
+export default function HomepageManagement() {
+  const router = useRouter();
+  const { admin } = useAuth();
+  const { showToast } = useToast();
+
+  const [homeContent, setHomeContent] = useState(initialHomeContent);
+  const [heroForm, setHeroForm] = useState(initialHomeContent.hero);
+  const [valueForm, setValueForm] = useState({
+    title: "",
+    description: "",
+    icon: "✨",
+  });
+  const [editingValueId, setEditingValueId] = useState(null);
+  const [activeTab, setActiveTab] = useState("hero");
+  const [loading, setLoading] = useState(true);
+  const [heroSectionId, setHeroSectionId] = useState(null);
+  const [coreValueSections, setCoreValueSections] = useState([]); // Array of {id, content}
+
+  // Fetch homepage content from API
+  useEffect(() => {
+    if (!admin) {
+      router.push("/Admin/Login");
+      return;
+    }
+    const fetchContent = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/homepage");
+        const json = await res.json();
+        if (json.success && Array.isArray(json.sections)) {
+          // Find hero and coreValues sections
+          let hero = initialHomeContent.hero;
+          let heroId = null;
+          let coreValues = [];
+          let coreValueSectionsArr = [];
+          json.sections.forEach((section) => {
+            if (section.section === "hero") {
+              hero = section.content || initialHomeContent.hero;
+              heroId = section.id;
+            } else if (section.section === "core_value") {
+              // Each core value is a separate row
+              coreValues.push({ ...section.content, id: section.id });
+              coreValueSectionsArr.push(section);
+            }
+          });
+          setHomeContent({ hero, coreValues });
+          setHeroForm(hero);
+          setHeroSectionId(heroId);
+          setCoreValueSections(coreValueSectionsArr);
+        }
+      } catch (error) {
+        showToast("Failed to load homepage content", "error");
+      }
+      setLoading(false);
+    };
+    fetchContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [admin, router]);
+
+  // Save or update hero section
+  const saveHeroSection = async (heroData) => {
+    try {
+      const res = await fetch("/api/homepage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section: "hero", content: heroData, order_index: 0, visible: true }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setHeroSectionId(json.section.id);
+        setHomeContent((prev) => ({ ...prev, hero: heroData }));
+        showToast("Hero section updated successfully!", "success");
+      } else {
+        showToast(json.error || "Failed to save hero section", "error");
+      }
+    } catch (error) {
+      showToast("Failed to save hero section", "error");
+    }
+  };
+
+  // Add a new core value
+  const addCoreValue = async (valueData) => {
+    try {
+      const res = await fetch("/api/homepage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section: "core_value", content: valueData, order_index: 1, visible: true }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setHomeContent((prev) => ({ ...prev, coreValues: [...prev.coreValues, { ...valueData, id: json.section.id }] }));
+        setCoreValueSections((prev) => [...prev, json.section]);
+        showToast("Core value added successfully!", "success");
+      } else {
+        showToast(json.error || "Failed to add core value", "error");
+      }
+    } catch (error) {
+      showToast("Failed to add core value", "error");
+    }
+  };
+
+  // Update a core value
+  const updateCoreValue = async (id, valueData) => {
+    try {
+      const res = await fetch(`/api/homepage/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: valueData }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setHomeContent((prev) => ({
+          ...prev,
+          coreValues: prev.coreValues.map((v) => (v.id === id ? { ...valueData, id } : v)),
+        }));
+        setCoreValueSections((prev) => prev.map((s) => (s.id === id ? { ...s, content: valueData } : s)));
+        showToast("Core value updated successfully!", "success");
+      } else {
+        showToast(json.error || "Failed to update core value", "error");
+      }
+    } catch (error) {
+      showToast("Failed to update core value", "error");
+    }
+  };
+
+  // Delete a core value
+  const deleteCoreValue = async (id) => {
+    try {
+      const res = await fetch(`/api/homepage/${id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (json.success) {
+        setHomeContent((prev) => ({ ...prev, coreValues: prev.coreValues.filter((v) => v.id !== id) }));
+        setCoreValueSections((prev) => prev.filter((s) => s.id !== id));
+        showToast("Core value deleted successfully!", "success");
+      } else {
+        showToast(json.error || "Failed to delete core value", "error");
+      }
+    } catch (error) {
+      showToast("Failed to delete core value", "error");
+    }
+  };
+
+  const handleHeroInputChange = (e) => {
+    const { name, value } = e.target;
+    setHeroForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleValueInputChange = (e) => {
+    const { name, value } = e.target;
+    setValueForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const validateHeroForm = () => {
+    if (!heroForm.title.trim()) {
+      showToast("Please enter a hero title", "error");
+      return false;
+    }
+    if (!heroForm.subtitle.trim()) {
+      showToast("Please enter a hero subtitle", "error");
+      return false;
+    }
+    if (!heroForm.cta_button_text.trim()) {
+      showToast("Please enter CTA button text", "error");
+      return false;
+    }
+    if (heroForm.title.length > 100) {
+      showToast("Title should be less than 100 characters", "error");
+      return false;
+    }
+    if (heroForm.subtitle.length > 150) {
+      showToast("Subtitle should be less than 150 characters", "error");
+      return false;
+    }
+    return true;
+  };
+
+  const validateValueForm = () => {
+    if (!valueForm.title.trim()) {
+      showToast("Please enter a value title", "error");
+      return false;
+    }
+    if (!valueForm.description.trim()) {
+      showToast("Please enter a value description", "error");
+      return false;
+    }
+    if (valueForm.title.length > 50) {
+      showToast("Value title should be less than 50 characters", "error");
+      return false;
+    }
+    if (valueForm.description.length > 150) {
+      showToast("Value description should be less than 150 characters", "error");
+      return false;
+    }
+    return true;
+  };
+
+  const handleHeroSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateHeroForm()) return;
+    await saveHeroSection(heroForm);
+  };
+
+  const handleAddValue = async (e) => {
+    e.preventDefault();
+    if (!validateValueForm()) return;
+    await addCoreValue(valueForm);
+    setValueForm({ title: "", description: "", icon: "✨" });
+  };
+
+  const handleUpdateValue = async (e) => {
+    e.preventDefault();
+    if (!validateValueForm()) return;
+    if (!editingValueId) return;
+    await updateCoreValue(editingValueId, valueForm);
+    setValueForm({ title: "", description: "", icon: "✨" });
+    setEditingValueId(null);
+  };
+
+  const handleDeleteValue = async (id) => {
+    if (confirm("Are you sure you want to delete this core value?")) {
+      await deleteCoreValue(id);
+    }
+  };
+
+  const handleEditValue = (value) => {
+    setEditingValueId(value.id);
+    setValueForm({
+      title: value.title,
+      description: value.description,
+      icon: value.icon,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingValueId(null);
+    setValueForm({
+      title: "",
+      description: "",
+      icon: "✨",
+    });
+  };
+
+  const icons = ["✨", "🙏", "🤝", "❤️", "🌟", "💪", "🎯", "🔥"];
+
+  if (loading) {
+    return (
+      <section className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="text-4xl"
+        >
+          ⏳
+        </motion.div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-12 px-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+          <Link
+            href="/Admin"
+            className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-6"
+          >
+            ← Back to Dashboard
+          </Link>
+          <h1 className="text-4xl font-bold text-white mb-2">🏠 Homepage Content</h1>
+          <p className="text-gray-400 mb-8">
+            Manage your homepage hero section and core values
+          </p>
+        </motion.div>
+
+        {/* Tabs */}
+        <div className="flex gap-4 mb-8 border-b border-gray-700">
+          <button
+            onClick={() => setActiveTab("hero")}
+            className={`px-6 py-3 font-semibold transition ${
+              activeTab === "hero"
+                ? "text-yellow-400 border-b-2 border-yellow-400"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            Hero Section
+          </button>
+          <button
+            onClick={() => setActiveTab("values")}
+            className={`px-6 py-3 font-semibold transition ${
+              activeTab === "values"
+                ? "text-yellow-400 border-b-2 border-yellow-400"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            Core Values
+          </button>
+        </div>
+
+        {/* Hero Section Tab */}
+        {activeTab === "hero" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gray-800 rounded-2xl p-8 mb-8"
+          >
+            <h2 className="text-2xl font-bold text-white mb-6">Hero Section</h2>
+            <form onSubmit={handleHeroSubmit} className="space-y-6">
+              {/* Hero Title */}
+              <div>
+                <label className="block text-white font-semibold mb-2">
+                  Hero Title
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={heroForm.title}
+                  onChange={handleHeroInputChange}
+                  maxLength="100"
+                  className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-yellow-400 focus:outline-none transition"
+                  placeholder="e.g., Welcome to Chia View"
+                />
+                <div className="text-right text-gray-400 text-sm mt-1">
+                  {heroForm.title.length}/100 characters
+                </div>
+              </div>
+
+              {/* Hero Subtitle */}
+              <div>
+                <label className="block text-white font-semibold mb-2">
+                  Hero Subtitle
+                </label>
+                <textarea
+                  name="subtitle"
+                  value={heroForm.subtitle}
+                  onChange={handleHeroInputChange}
+                  maxLength="150"
+                  className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-yellow-400 focus:outline-none transition resize-none h-24"
+                  placeholder="e.g., Empowering lives through faith, community, and service"
+                />
+                <div className="text-right text-gray-400 text-sm mt-1">
+                  {heroForm.subtitle.length}/150 characters
+                </div>
+              </div>
+
+              {/* CTA Button Text */}
+              <div>
+                <label className="block text-white font-semibold mb-2">
+                  Call-to-Action Button Text
+                </label>
+                <input
+                  type="text"
+                  name="cta_button_text"
+                  value={heroForm.cta_button_text}
+                  onChange={handleHeroInputChange}
+                  maxLength="50"
+                  className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-yellow-400 focus:outline-none transition"
+                  placeholder="e.g., Get Involved"
+                />
+                <div className="text-right text-gray-400 text-sm mt-1">
+                  {heroForm.cta_button_text.length}/50 characters
+                </div>
+              </div>
+
+              {/* Background Image URL */}
+              <div>
+                <label className="block text-white font-semibold mb-2">
+                  Background Image URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  name="background_image_url"
+                  value={heroForm.background_image_url}
+                  onChange={handleHeroInputChange}
+                  className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-yellow-400 focus:outline-none transition"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                type="submit"
+                className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold py-3 rounded-lg transition"
+              >
+                💾 Save Hero Section
+              </motion.button>
+            </form>
+          </motion.div>
+        )}
+
+        {/* Core Values Tab */}
+        {activeTab === "values" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-8"
+          >
+            {/* Add/Edit Value Form */}
+            <div className="bg-gray-800 rounded-2xl p-8">
+              <h2 className="text-2xl font-bold text-white mb-6">
+                {editingValueId ? "Edit Core Value" : "Add Core Value"}
+              </h2>
+              <form
+                onSubmit={editingValueId ? handleUpdateValue : handleAddValue}
+                className="space-y-6"
+              >
+                {/* Value Title */}
+                <div>
+                  <label className="block text-white font-semibold mb-2">
+                    Value Title
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={valueForm.title}
+                    onChange={handleValueInputChange}
+                    maxLength="50"
+                    className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-purple-400 focus:outline-none transition"
+                    placeholder="e.g., Faith"
+                  />
+                  <div className="text-right text-gray-400 text-sm mt-1">
+                    {valueForm.title.length}/50 characters
+                  </div>
+                </div>
+
+                {/* Value Description */}
+                <div>
+                  <label className="block text-white font-semibold mb-2">
+                    Value Description
+                  </label>
+                  <textarea
+                    name="description"
+                    value={valueForm.description}
+                    onChange={handleValueInputChange}
+                    maxLength="150"
+                    className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-purple-400 focus:outline-none transition resize-none h-20"
+                    placeholder="Describe this core value..."
+                  />
+                  <div className="text-right text-gray-400 text-sm mt-1">
+                    {valueForm.description.length}/150 characters
+                  </div>
+                </div>
+
+                {/* Icon Selection */}
+                <div>
+                  <label className="block text-white font-semibold mb-2">
+                    Icon
+                  </label>
+                  <div className="grid grid-cols-4 gap-3">
+                    {icons.map((icon) => (
+                      <button
+                        key={icon}
+                        type="button"
+                        onClick={() =>
+                          setValueForm((prev) => ({ ...prev, icon }))
+                        }
+                        className={`p-4 rounded-lg text-2xl transition ${
+                          valueForm.icon === icon
+                            ? "bg-purple-600 border-2 border-purple-400"
+                            : "bg-gray-700 border-2 border-gray-600 hover:border-purple-400"
+                        }`}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold py-3 rounded-lg transition"
+                  >
+                    {editingValueId ? "✏️ Update Value" : "➕ Add Value"}
+                  </motion.button>
+                  {editingValueId && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 rounded-lg transition"
+                    >
+                      Cancel
+                    </motion.button>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* Core Values List */}
+            <div className="bg-gray-800 rounded-2xl p-8">
+              <h2 className="text-2xl font-bold text-white mb-6">
+                Current Core Values ({homeContent.coreValues.length})
+              </h2>
+              {homeContent.coreValues.length === 0 ? (
+                <p className="text-gray-400">No core values added yet.</p>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {homeContent.coreValues.map((value) => (
+                    <motion.div
+                      key={value.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-gray-700 rounded-xl p-6 hover:bg-gray-600 transition"
+                    >
+                      <div className="text-4xl mb-3">{value.icon}</div>
+                      <h3 className="text-lg font-bold text-white mb-2">
+                        {value.title}
+                      </h3>
+                      <p className="text-gray-300 text-sm mb-4">
+                        {value.description}
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEditValue(value)}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition text-sm font-semibold"
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteValue(value.id)}
+                          className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded transition text-sm font-semibold"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </section>
+  );
+}
