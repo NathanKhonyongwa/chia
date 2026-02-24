@@ -134,16 +134,42 @@ export default function ContactForm() {
           phone: "",
         });
 
-        // Reset status after 3 seconds
+        // Reset status after 5 seconds
         setTimeout(() => {
           setSubmitStatus("idle");
-        }, 3000);
+        }, 5000);
       } catch (error) {
         console.error("Contact form error:", error);
         setErrorMessage(error.message || "An error occurred. Please try again later.");
         setSubmitStatus("error");
+        
+        // Reset error status after 5 seconds
+        setTimeout(() => {
+          setSubmitStatus("idle");
+          setErrorMessage("");
+        }, 5000);
       }
     });
+  };
+
+  // Icons for contact methods
+  const contactIcons = {
+    email: (
+      <svg className="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+    phone: (
+      <svg className="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+      </svg>
+    ),
+    location: (
+      <svg className="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
   };
 
   return (
@@ -154,6 +180,7 @@ export default function ContactForm() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
           className="text-center mb-8 sm:mb-10 md:mb-12"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-900 to-indigo-800 bg-clip-text text-transparent mb-3 sm:mb-4 px-2">
@@ -170,14 +197,17 @@ export default function ContactForm() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
           className="bg-white/90 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-xl hover:shadow-2xl transition-shadow duration-300 p-6 sm:p-8 md:p-10 lg:p-12 border border-white/50 max-w-4xl mx-auto"
         >
           <AnimatePresence mode="wait">
             {submitStatus === "success" ? (
               <motion.div
+                key="success"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
                 className="text-center py-8 sm:py-10 md:py-12 px-4"
               >
                 <div className="w-16 sm:w-20 h-16 sm:h-20 bg-green-100 rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center">
@@ -191,9 +221,16 @@ export default function ContactForm() {
                 </p>
               </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+              <motion.form
+                key="form"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onSubmit={handleSubmit}
+                className="space-y-5 sm:space-y-6"
+              >
                 {/* Error Alert */}
-                {errorMessage && (
+                {submitStatus === "error" && errorMessage && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -226,7 +263,7 @@ export default function ContactForm() {
                     }`}
                   />
                   {errors.name && (
-                    <p id="name-error" className="text-red-500 text-xs">
+                    <p id="name-error" className="text-red-500 text-xs mt-1">
                       • {errors.name}
                     </p>
                   )}
@@ -255,7 +292,7 @@ export default function ContactForm() {
                       }`}
                     />
                     {errors.email && (
-                      <p id="email-error" className="text-red-500 text-xs">
+                      <p id="email-error" className="text-red-500 text-xs mt-1">
                         • {errors.email}
                       </p>
                     )}
@@ -300,7 +337,7 @@ export default function ContactForm() {
                     }`}
                   />
                   {errors.subject && (
-                    <p id="subject-error" className="text-red-500 text-xs">
+                    <p id="subject-error" className="text-red-500 text-xs mt-1">
                       • {errors.subject}
                     </p>
                   )}
@@ -317,7 +354,7 @@ export default function ContactForm() {
                     value={formData.message}
                     onChange={handleChange}
                     placeholder="Tell us more about your inquiry..."
-                    rows={window.innerWidth < 640 ? 4 : 6}
+                    rows={4}
                     aria-describedby={errors.message ? "message-error" : undefined}
                     aria-invalid={!!errors.message}
                     required
@@ -328,7 +365,7 @@ export default function ContactForm() {
                     }`}
                   />
                   {errors.message && (
-                    <p id="message-error" className="text-red-500 text-xs">
+                    <p id="message-error" className="text-red-500 text-xs mt-1">
                       • {errors.message}
                     </p>
                   )}
@@ -341,16 +378,26 @@ export default function ContactForm() {
                   aria-busy={isPending}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-3 sm:py-4 px-6 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 text-sm sm:text-base"
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-3 sm:py-4 px-6 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition-all duration-300 text-sm sm:text-base disabled:cursor-not-allowed"
                 >
-                  {isPending ? "Sending..." : "Send Message"}
+                  {isPending ? (
+                    <span className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Sending...
+                    </span>
+                  ) : (
+                    "Send Message"
+                  )}
                 </motion.button>
 
                 {/* Required Fields Note */}
                 <p className="text-xs text-gray-500 text-center">
                   * Required fields
                 </p>
-              </form>
+              </motion.form>
             )}
           </AnimatePresence>
         </motion.div>
@@ -360,7 +407,7 @@ export default function ContactForm() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
           className="mt-10 sm:mt-12 md:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto"
         >
           {[
@@ -368,34 +415,36 @@ export default function ContactForm() {
               title: "Email",
               value: "info@chiamissionview.org",
               href: "mailto:info@chiamissionview.org",
-              icon: "",
+              icon: contactIcons.email,
             },
             {
               title: "Phone",
               value: "+265 1 234 5678",
-              href: "tel:+2651234567",
-              icon: "",
+              href: "tel:+26512345678",
+              icon: contactIcons.phone,
             },
             {
               title: "Address",
               value: "Dowa District, Malawi",
-              href: "#",
-              icon: "",
+              href: "https://maps.google.com/?q=Dowa+District+Malawi",
+              icon: contactIcons.location,
             },
           ].map((contact, index) => (
             <motion.a
               key={index}
               href={contact.href}
+              target={contact.href.startsWith('http') ? '_blank' : undefined}
+              rel={contact.href.startsWith('http') ? 'noopener noreferrer' : undefined}
               whileHover={{ y: -5 }}
               className="group bg-white/80 backdrop-blur-xl rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 text-center border border-white/50 hover:shadow-lg hover:bg-white transition-all duration-300"
             >
-              <span className="text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3 block group-hover:scale-110 transition-transform">
+              <span className="text-2xl sm:text-3xl mb-2 sm:mb-3 block group-hover:scale-110 transition-transform text-blue-600">
                 {contact.icon}
               </span>
               <h3 className="font-semibold text-gray-700 mb-1 text-sm sm:text-base">
                 {contact.title}
               </h3>
-              <p className="text-blue-600 font-semibold text-xs sm:text-sm md:text-base break-words">
+              <p className="text-blue-600 font-medium text-xs sm:text-sm md:text-base break-words">
                 {contact.value}
               </p>
             </motion.a>
